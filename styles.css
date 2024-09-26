@@ -1,0 +1,189 @@
+/* styles.css */
+
+/* Reset default styles */
+body, h1, h2, h3, p, ul, li, figure, figcaption, input, select, button, label {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  overflow: hidden; /* Prevent scrolling */
+}
+
+#renderer-container {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Control Panel Styles */
+#control-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 300px;
+  height: 100%;
+  background-color: #ffffff;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+  overflow-y: auto;
+  transform: translateX(0);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+}
+
+#control-panel.collapsed {
+  transform: translateX(100%);
+}
+
+#control-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #ddd;
+}
+
+#control-panel-header h2 {
+  font-size: 18px;
+}
+
+#control-panel-header button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+#control-panel-content {
+  padding: 15px;
+}
+
+.control-section {
+  margin-bottom: 20px;
+}
+
+.control-section h3 {
+  font-size: 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  position: relative;
+  padding-right: 20px;
+}
+
+.control-section h3::after {
+  content: '\25BC';
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-size: 14px;
+  transition: transform 0.3s ease;
+}
+
+.control-section.collapsed h3::after {
+  transform: rotate(-90deg);
+}
+
+.control-content {
+  display: block;
+}
+
+.control-section.collapsed .control-content {
+  display: none;
+}
+
+.control-content label {
+  display: block;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.control-content label input,
+.control-content label select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.control-content button {
+  padding: 10px;
+  width: 100%;
+  font-size: 14px;
+  cursor: pointer;
+  background-color: #007BFF;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+}
+
+.control-content label input[type="checkbox"] {
+  width: auto;
+  margin-right: 10px;
+}
+
+#control-panel-toggle {
+  display: none; /* Hidden on desktop */
+}
+
+/* Mobile Styles */
+@media (max-width: 767px) {
+  #control-panel {
+    width: 100%;
+    height: 70vh;
+    bottom: 0;
+    top: auto;
+    transform: translateY(100%);
+  }
+
+  #control-panel.collapsed {
+    transform: translateY(0);
+  }
+
+  #control-panel-header {
+    padding: 10px;
+  }
+
+  #control-panel-toggle {
+    display: block;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1001;
+  }
+
+  body {
+    overflow: auto; /* Allow scrolling */
+  }
+
+  #renderer-container {
+    height: 100vh;
+  }
+}
+
+/* Scrollbar Styling */
+#control-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+#control-panel::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 4px;
+}
+
+#control-panel::-webkit-scrollbar-track {
+  background-color: rgba(0,0,0,0.05);
+}
+

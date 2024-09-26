@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>3D Configurator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Link to your CSS file -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- 3D Renderer Container -->
+  <div id="renderer-container"></div>
+
+  <!-- Control Panel -->
+  <div id="control-panel" class="collapsed">
+    <div id="control-panel-header">
+      <h2>Control Panel</h2>
+      <button id="control-panel-close">&times;</button>
+    </div>
+    <div id="control-panel-content">
+      <!-- Camera Section -->
+      <div class="control-section">
+        <h3>Camera</h3>
+        <div class="control-content">
+          <button id="reset-camera">Reset Camera</button>
+        </div>
+      </div>
+      <!-- Overall Size Section -->
+      <div class="control-section">
+        <h3>Overall Size</h3>
+        <div class="control-content">
+          <label>
+            Width (m)
+            <input type="number" id="overall-width" min="0.1" step="0.1" value="0.6">
+          </label>
+          <label>
+            Height (m)
+            <input type="number" id="overall-height" min="0.1" step="0.1" value="0.6">
+          </label>
+          <label>
+            Depth (m)
+            <input type="number" id="overall-depth" min="0.1" step="0.1" value="0.6">
+          </label>
+        </div>
+      </div>
+      <!-- Cube Properties Section -->
+      <div class="control-section">
+        <h3>Cube Properties</h3>
+        <div class="control-content">
+          <label>
+            Cube Width (m)
+            <input type="number" id="cube-width" min="0.01" step="0.01" value="0.4">
+          </label>
+          <label>
+            Cube Height (m)
+            <input type="number" id="cube-height" min="0.01" step="0.01" value="0.4">
+          </label>
+          <label>
+            Cube Depth (m)
+            <input type="number" id="cube-depth" min="0.01" step="0.01" value="0.4">
+          </label>
+          <label>
+            Thickness (m)
+            <input type="number" id="cube-thickness" min="0.012" max="0.03" step="0.001" value="0.018">
+          </label>
+        </div>
+      </div>
+      <!-- Visibility Section -->
+      <div class="control-section">
+        <h3>Visibility</h3>
+        <div class="control-content">
+          <label>
+            <input type="checkbox" id="front-panel-visible" checked>
+            Front On/Off
+          </label>
+          <label>
+            <input type="checkbox" id="back-panel-visible" checked>
+            Back On/Off
+          </label>
+          <label>
+            <input type="checkbox" id="shelves-visible" checked>
+            Shelves On/Off
+          </label>
+        </div>
+      </div>
+      <!-- Repetition Section -->
+      <div class="control-section">
+        <h3>Repetition</h3>
+        <div class="control-content">
+          <label>
+            Number of Cubes X
+            <input type="number" id="num-cubes-x" min="1" max="10" step="1" value="1">
+          </label>
+          <label>
+            Number of Cubes Y
+            <input type="number" id="num-cubes-y" min="1" max="10" step="1" value="1">
+          </label>
+          <label>
+            Number of Cubes Z
+            <input type="number" id="num-cubes-z" min="1" max="2" step="1" value="1">
+          </label>
+        </div>
+      </div>
+      <!-- Texture Selection Section -->
+      <div class="control-section">
+        <h3>Texture Selection</h3>
+        <div class="control-content">
+          <label for="texture-selection">Lamination</label>
+          <select id="texture-selection">
+            <option value="Grey Lamination">Grey</option>
+            <option value="White Lamination">White</option>
+            <option value="Yellow Lamination">Yellow</option>
+            <option value="Natural Finish">Natural</option>
+            <option value="Red Lamination" selected>Red</option>
+            <option value="Blue Lamination">Blue</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Control Panel Toggle Button (for mobile) -->
+  <button id="control-panel-toggle">&#9776;</button>
+
+  <!-- Include your main JavaScript file -->
+  <script type="module" src="main.js"></script>
+</body>
+</html>
