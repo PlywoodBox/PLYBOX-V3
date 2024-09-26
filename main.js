@@ -25,7 +25,7 @@ const renderer = new THREE.WebGLRenderer({
   antialias: true,
   alpha: true,
 });
-renderer.setClearColor(0xffffff, 0.8); // White background with full opacity
+renderer.setClearColor(0xffffff, 0.8); // White background with 80% opacity
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 renderer.shadowMap.enabled = true;
@@ -110,11 +110,17 @@ let cubeProperties = {
   selectedTexture: 'Red Lamination',
 };
 
+// Store initial properties for resetting
+const initialCubeProperties = { ...cubeProperties };
+
 let dimensions = {
   width: 0.6,
   height: 0.6,
   depth: 0.6,
 };
+
+// Store initial dimensions
+const initialDimensions = { ...dimensions };
 
 let spacing = {
   cubeSpacing: 0.02,
@@ -126,6 +132,9 @@ let numCubes = {
   numCubesY: 1,
   numCubesZ: 1,
 };
+
+// Store initial numCubes
+const initialNumCubes = { ...numCubes };
 
 let panelProperties = {
   showLargePanel: false,
@@ -533,12 +542,13 @@ function createSectionMesh(width, height, depth, offsetX, offsetY, offsetZ) {
   group.add(backPanel);
 
   // Add Cylinders with updated material based on selected lamination
-  const cylinderRadius = 0.015; // 15cm radius (if you want to convert to cm, adjust accordingly)
+  const cylinderRadius = 0.015; // 1.5 cm radius
   const cylinderHeight = spacing.cubeSpacing; // Already in meters
-  const edgeOffsetX = 0.04; // 40cm offset in meters (0.04 m)
-  const edgeOffsetZ = 0.04; // 40cm offset converted to meters
+  const edgeOffsetX = 0.04; // 4 cm offset in meters (0.04 m)
+  const edgeOffsetZ = 0.04; // 4 cm offset converted to meters
   const numCylindersX = Math.floor(availableWidth / 0.5) + 2;
   const numCylindersZ = Math.floor(depth / 0.5) + 2;
+  const middlePanelZValue = depth / (numCylindersZ - 1); // Calculate based on previous logic
 
   const cylinderGeometry = new THREE.CylinderGeometry(cylinderRadius, cylinderRadius, cylinderHeight, 32);
 
@@ -552,7 +562,7 @@ function createSectionMesh(width, height, depth, offsetX, offsetY, offsetZ) {
       } else if (i === numCylindersX - 1) {
         posX -= edgeOffsetX; // Apply offset only to the last cylinder
       }
-      let posZ = -depth / 2 + j * middlePanelZ;
+      let posZ = -depth / 2 + j * middlePanelZValue;
       if (j === 0) {
         posZ += edgeOffsetZ; // Apply offset to the first cylinder
       } else if (j === numCylindersZ - 1) {
@@ -580,11 +590,6 @@ function createSectionMesh(width, height, depth, offsetX, offsetY, offsetZ) {
 
   return group;
 }
-
-// Simulate a button press for the reset camera button
-window.addEventListener('load', () => {
-  document.getElementById('reset-camera').click();
-});
 
 // Orbit Controls and Animation Loop
 const controls = new OrbitControls(currentCamera, renderer.domElement);
@@ -626,6 +631,21 @@ controlPanelToggle.addEventListener('click', () => {
   controlPanelToggle.setAttribute('aria-expanded', isOpen);
 });
 
+// Initialize Control Panel State based on screen size
+function initializeControlPanelState() {
+  if (window.innerWidth >= 769) {
+    // Desktop mode: Start as opened
+    controlPanel.classList.remove('collapsed');
+    controlPanelToggle.classList.remove('open');
+    controlPanelToggle.setAttribute('aria-expanded', 'true');
+  } else {
+    // Mobile mode: Start as closed
+    controlPanel.classList.add('collapsed');
+    controlPanelToggle.classList.remove('open');
+    controlPanelToggle.setAttribute('aria-expanded', 'false');
+  }
+}
+
 window.addEventListener('load', () => {
   setTimeout(() => {
     const overlay = document.getElementById('overlay-message');
@@ -634,10 +654,17 @@ window.addEventListener('load', () => {
       overlay.remove();
     }, 1000); // Remove element after fade-out
   }, 3000); // Show message for 3 seconds
+
+  // Initialize Control Panel State
+  initializeControlPanelState();
+
+  // Initialize Box State
+  resetBox(); // Ensure the Box starts with initial properties
 });
 
 // Control Elements
 const resetCameraButton = document.getElementById('reset-camera');
+const resetBoxButton = document.getElementById('reset-box'); // New Reset Box Button
 const overallWidthInput = document.getElementById('overall-width');
 const overallHeightInput = document.getElementById('overall-height');
 const overallDepthInput = document.getElementById('overall-depth');
@@ -668,8 +695,58 @@ sliders.forEach((slider) => {
   });
 });
 
+// Function: Reset Box to Initial Properties
+function resetBox() {
+  // Reset cubeProperties to initial values
+  cubeProperties = { ...initialCubeProperties };
+  dimensions = { ...initialDimensions };
+  numCubes = { ...initialNumCubes };
+
+  // Update UI elements to reflect initial values
+  overallWidthInput.value = dimensions.width.toFixed(1);
+  overallHeightInput.value = dimensions.height.toFixed(1);
+  overallDepthInput.value = dimensions.depth.toFixed(1);
+  document.getElementById('overall-width-value').textContent = overallWidthInput.value;
+  document.getElementById('overall-height-value').textContent = overallHeightInput.value;
+  document.getElementById('overall-depth-value').textContent = overallDepthInput.value;
+
+  cubeWidthInput.value = cubeProperties.cubeWidth.toFixed(2);
+  cubeHeightInput.value = cubeProperties.cubeHeight.toFixed(2);
+  cubeDepthInput.value = cubeProperties.cubeDepth.toFixed(2);
+  cubeThicknessInput.value = (cubeProperties.thickness * 100).toFixed(1); // Convert to cm
+  document.getElementById('cube-width-value').textContent = cubeWidthInput.value;
+  document.getElementById('cube-height-value').textContent = cubeHeightInput.value;
+  document.getElementById('cube-depth-value').textContent = cubeDepthInput.value;
+  document.getElementById('cube-thickness-value').textContent = cubeThicknessInput.value;
+
+  frontPanelVisibleCheckbox.checked = cubeProperties.frontPanelVisible;
+  backPanelVisibleCheckbox.checked = cubeProperties.backPanelVisible;
+  shelvesVisibleCheckbox.checked = cubeProperties.showHorizontalPanels;
+
+  numCubesXInput.value = numCubes.numCubesX;
+  numCubesYInput.value = numCubes.numCubesY;
+  numCubesZInput.value = numCubes.numCubesZ;
+  document.getElementById('num-cubes-x-value').textContent = numCubesXInput.value;
+  document.getElementById('num-cubes-y-value').textContent = numCubesYInput.value;
+  document.getElementById('num-cubes-z-value').textContent = numCubesZInput.value;
+
+  // Reset Texture Selection to initial value
+  textureSwatches.forEach((swatch) => {
+    if (swatch.getAttribute('data-texture') === cubeProperties.selectedTexture) {
+      swatch.classList.add('selected');
+    } else {
+      swatch.classList.remove('selected');
+    }
+  });
+
+  // Update materials and geometry
+  updateLaminatedMaterial();
+  updateCubeGeometry();
+}
+
 // Event Listeners for Controls
 resetCameraButton.addEventListener('click', resetCamera);
+resetBoxButton.addEventListener('click', resetBox); // Add event listener for Reset Box
 
 // Overall Size Sliders
 overallWidthInput.addEventListener('input', () => {
@@ -690,7 +767,7 @@ overallDepthInput.addEventListener('input', () => {
   updateCubeGeometry();
 });
 
-// Cube Properties Sliders
+// Box Size Sliders
 cubeWidthInput.addEventListener('input', () => {
   cubeProperties.cubeWidth = parseFloat(cubeWidthInput.value);
   document.getElementById('cube-width-value').textContent = cubeWidthInput.value;
@@ -713,14 +790,14 @@ cubeThicknessInput.addEventListener('input', () => {
   const thicknessCm = parseFloat(cubeThicknessInput.value);
   const thicknessM = closestAllowedThickness(thicknessCm); // Convert to meters
   cubeProperties.thickness = thicknessM;
-  
+
   // Update the input value to the closest allowed value in cm
   const closestCm = closestAllowedThickness(thicknessCm, false);
   cubeThicknessInput.value = closestCm.toFixed(1);
-  
+
   // Update the displayed value in cm
   document.getElementById('cube-thickness-value').textContent = closestCm.toFixed(1);
-  
+
   updateCubeGeometry();
 });
 
@@ -808,3 +885,6 @@ numCubesZInput.value = numCubes.numCubesZ;
 document.getElementById('num-cubes-x-value').textContent = numCubesXInput.value;
 document.getElementById('num-cubes-y-value').textContent = numCubesYInput.value;
 document.getElementById('num-cubes-z-value').textContent = numCubesZInput.value;
+
+// Listen to window resize to adjust Control Panel state if needed
+window.addEventListener('resize', initializeControlPanelState);
