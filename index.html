@@ -14,7 +14,6 @@
   <div id="control-panel">
     <div id="control-panel-header">
       <h2>Control Panel</h2>
-      <button id="control-panel-close">&times;</button>
     </div>
     <div id="control-panel-content">
       <!-- Reset Section -->
@@ -22,70 +21,43 @@
         <h3>Reset</h3>
         <div class="control-content">
           <button id="reset-camera">Reset Camera</button>
-          <button id="reset-box">Reset Box</button> <!-- Added Reset Box Button -->
+          <button id="reset-box">Reset Box</button>
         </div>
       </div>
-      <!-- Overall Size Section -->
-      <div class="control-section">
-        <h3>Overall Size</h3>
-        <div class="control-content">
-          <label>
-            Width
-            <div class="control-input">
-              <input type="range" id="overall-width" min="0.1" max="10" step="0.1" value="0.6">
-              <span id="overall-width-value">0.6</span> m
-            </div>
-          </label>
-          <label>
-            Height
-            <div class="control-input">
-              <input type="range" id="overall-height" min="0.1" max="10" step="0.1" value="0.6">
-              <span id="overall-height-value">0.6</span> m
-            </div>
-          </label>
-          <label>
-            Depth
-            <div class="control-input">
-              <input type="range" id="overall-depth" min="0.1" max="10" step="0.1" value="0.6">
-              <span id="overall-depth-value">0.6</span> m
-            </div>
-          </label>
-        </div>
+     <!-- Box Size Section -->
+<div class="control-section">
+  <h3>Size (cm)</h3>
+  <div class="control-content">
+    <label>
+      <span>Width</span>
+      <div class="control-input">
+        <input type="range" id="cube-width" min="1" max="240" step="1" value="40">
+        <input type="number" id="cube-width-value" value="40" step="1" min="1" max="240">
       </div>
-      <!-- Box Size Section --> <!-- Renamed from Cube Properties -->
-      <div class="control-section">
-        <h3>Box Size</h3> <!-- Renamed -->
-        <div class="control-content">
-          <label>
-            Box Width <!-- Renamed -->
-            <div class="control-input">
-              <input type="range" id="cube-width" min="0.01" max="2.4" step="0.01" value="0.4">
-              <span id="cube-width-value">0.4</span> m
-            </div>
-          </label>
-          <label>
-            Box Height <!-- Renamed -->
-            <div class="control-input">
-              <input type="range" id="cube-height" min="0.01" max="2.4" step="0.01" value="0.4">
-              <span id="cube-height-value">0.4</span> m
-            </div>
-          </label>
-          <label>
-            Box Depth <!-- Renamed -->
-            <div class="control-input">
-              <input type="range" id="cube-depth" min="0.01" max="2.4" step="0.01" value="0.4">
-              <span id="cube-depth-value">0.4</span> m
-            </div>
-          </label>
-          <label>
-            Thickness
-            <div class="control-input">
-              <input type="range" id="cube-thickness" min="1.2" max="3.0" step="0.1" value="1.8">
-              <span id="cube-thickness-value">1.8</span> cm
-            </div>
-          </label>
-        </div>
+    </label>
+    <label>
+      <span>Height</span>
+      <div class="control-input">
+        <input type="range" id="cube-height" min="1" max="240" step="1" value="40">
+        <input type="number" id="cube-height-value" value="40" step="1" min="1" max="240">
       </div>
+    </label>
+    <label>
+      <span>Depth</span>
+      <div class="control-input">
+        <input type="range" id="cube-depth" min="1" max="240" step="1" value="40">
+        <input type="number" id="cube-depth-value" value="40" step="1" min="1" max="240">
+      </div>
+    </label>
+    <label>
+      <span>Thickness</span>
+      <div class="control-input">
+        <input type="range" id="cube-thickness" min="1.2" max="3.0" step="0.1" value="1.8">
+        <input type="number" id="cube-thickness-value" value="1.8" step="0.1" min="1.2" max="3.0">
+      </div>
+    </label>
+  </div>
+</div>
       <!-- Visibility Section -->
       <div class="control-section">
         <h3>Visibility</h3>
@@ -112,31 +84,31 @@
         <h3>Repetition</h3>
         <div class="control-content">
           <label>
-            Number of X
+            <span>X</span>
             <div class="control-input">
               <input type="range" id="num-cubes-x" min="1" max="10" step="1" value="1">
-              <span id="num-cubes-x-value">1</span>
+              <input type="number" id="num-cubes-x-value" value="1" min="1" max="10">
             </div>
           </label>
           <label>
-            Number of Y
+            <span>Y</span>
             <div class="control-input">
               <input type="range" id="num-cubes-y" min="1" max="10" step="1" value="1">
-              <span id="num-cubes-y-value">1</span>
+              <input type="number" id="num-cubes-y-value" value="1" min="1" max="10">
             </div>
           </label>
           <label>
-            Number of Z
+            <span>Z</span>
             <div class="control-input">
               <input type="range" id="num-cubes-z" min="1" max="2" step="1" value="1">
-              <span id="num-cubes-z-value">1</span>
+              <input type="number" id="num-cubes-z-value" value="1" min="1" max="2">
             </div>
           </label>
         </div>
       </div>
-      <!-- Colour Section --> <!-- Renamed from Texture Selection -->
+      <!-- Colour Section -->
       <div class="control-section">
-        <h3>Colour</h3> <!-- Renamed -->
+        <h3>Colour</h3>
         <div class="control-content">
           <div class="texture-selection">
             <span class="texture-label">Lamination</span>
