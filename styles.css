@@ -34,10 +34,12 @@ body {
     width: 100%;
     max-height: 30vh; /* 30% of viewport height */
     transform: translateY(100%); /* Start hidden at the bottom */
+    padding: 20px; /* Added overall padding */
+
   }
 
-  #control-panel.collapsed {
-    transform: translateY(0); /* Slide up into view */
+  #control-panel:not(.collapsed) {
+    transform: translateY(0); /* Slide up into view when not collapsed */
   }
 }
 
@@ -48,11 +50,12 @@ body {
     top: 0;
     width: 300px;
     height: 100%;
-    transform: translateX(0); /* Start visible on desktop */
+    transform: translateX(0); /* Start visible */
+    padding: 20px; /* Added overall padding */
   }
 
   #control-panel.collapsed {
-    transform: translateX(0); /* Keep it visible */
+    transform: translateX(100%); /* Slide out of view when collapsed */
   }
 }
 
@@ -85,7 +88,7 @@ body {
 }
 
 .control-section h3 {
-  font-size: 14px; /* Further reduced font size */
+  font-size: 14px; /* Reduced font size */
   margin-bottom: 10px;
   cursor: pointer;
   position: relative;
@@ -116,6 +119,7 @@ body {
   display: none;
 }
 
+/* Restore Grid Layout for Labels and Controls */
 .control-content label {
   display: grid;
   grid-template-columns: 100px 1fr; /* Fixed width for labels, flexible for controls */
@@ -129,12 +133,6 @@ body {
   font-size: 14px; /* Reduced font size */
 }
 
-.control-content .control-input {
-  /* Controls take up the remaining space */
-  display: flex;
-  align-items: center;
-}
-
 .control-content label span {
   margin-right: 10px;
 }
@@ -145,6 +143,26 @@ body {
 
 .control-content label span.value {
   margin-left: 10px;
+}
+
+.control-content .control-input {
+  /* Controls take up the remaining space */
+  display: flex;
+  align-items: center;
+}
+
+.control-content label input[type="range"] {
+  flex: 1;
+  width: 100%; /* Ensure the slider stretches */
+}
+
+.control-content label input[type="number"] {
+  width: 50px;
+  margin-left: 10px;
+  border: 2px solid #ff0000; /* Added red border */
+  border-radius: 4px;
+  padding: 2px 5px; /* Optional: Added padding for better appearance */
+  font-size: 14px;
 }
 
 /* Button Styles for Reset Camera and Reset Box */
@@ -170,10 +188,8 @@ body {
 
 /* Toggle Switch */
 .toggle-switch {
-  position: relative;
   display: flex;
   align-items: center;
-  margin-bottom: 15px;
 }
 
 .toggle-switch input {
@@ -209,6 +225,10 @@ body {
 
 .toggle-switch input:checked + .slider::before {
   transform: translateX(26px);
+}
+
+.toggle-switch .slider {
+  flex-shrink: 0; /* Prevent the slider from shrinking */
 }
 
 /* Texture Selection Styles */
@@ -269,7 +289,6 @@ body {
   transition: background-color 0.3s ease;
 }
 
-/* Burger Bars */
 #control-panel-toggle .bar {
   display: block;
   width: 20px;
@@ -281,7 +300,7 @@ body {
 
 /* Animate to X when open */
 #control-panel-toggle.open .bar1 {
-  transform: rotate(-45deg) translate(-5px, 6px);
+  transform: rotate(45deg) translate(5px, 5px);
 }
 
 #control-panel-toggle.open .bar2 {
@@ -289,7 +308,7 @@ body {
 }
 
 #control-panel-toggle.open .bar3 {
-  transform: rotate(45deg) translate(-5px, -6px);
+  transform: rotate(-45deg) translate(5px, -5px);
 }
 
 #control-panel-toggle:hover {
