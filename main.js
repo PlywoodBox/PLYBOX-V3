@@ -7,7 +7,7 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.127.0/exampl
 const scene = new THREE.Scene();
 
 // Create both cameras
-const aspect = window.innerWidth / window.innerHeight;
+let aspect = window.innerWidth / window.innerHeight;
 const perspectiveCamera = new THREE.PerspectiveCamera(70, aspect, 0.1, 1000);
 const orthographicCamera = new THREE.OrthographicCamera(-aspect, aspect, 1, -1, 0.1, 1000);
 
@@ -17,8 +17,8 @@ const startRotation = new THREE.Euler(0, 0, 0); // Common initial rotation
 
 // Set the initial camera
 let currentCamera = perspectiveCamera;
-perspectiveCamera.position.set(startPosition.x, startPosition.y, startPosition.z);
-orthographicCamera.position.set(startPosition.x, startPosition.y, startPosition.z);
+currentCamera.position.copy(startPosition);
+currentCamera.rotation.copy(startRotation);
 
 // Add the current camera to the scene
 scene.add(currentCamera);
@@ -34,6 +34,31 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 document.getElementById('renderer-container').appendChild(renderer.domElement);
+
+// Responsive resizing
+function onWindowResize() {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+
+  // Update aspect ratio
+  aspect = width / height;
+
+  // Update camera aspect ratios and projection matrices
+  perspectiveCamera.aspect = aspect;
+  perspectiveCamera.updateProjectionMatrix();
+
+  orthographicCamera.left = -aspect;
+  orthographicCamera.right = aspect;
+  orthographicCamera.top = 1;
+  orthographicCamera.bottom = -1;
+  orthographicCamera.updateProjectionMatrix();
+
+  // Update renderer size
+  renderer.setSize(width, height);
+}
+
+window.addEventListener('resize', onWindowResize, false);
+onWindowResize();
 
 // Lights and geometry setup
 const floorGeometry = new THREE.PlaneGeometry(20, 20);
@@ -556,6 +581,11 @@ function createSectionMesh(width, height, depth, offsetX, offsetY, offsetZ) {
   return group;
 }
 
+// Simulate a button press for the reset camera button
+window.addEventListener('load', () => {
+  document.getElementById('reset-camera').click();
+});
+
 // Orbit Controls and Animation Loop
 const controls = new OrbitControls(currentCamera, renderer.domElement);
 controls.enableDamping = true; // enables inertial damping
@@ -563,6 +593,26 @@ controls.dampingFactor = 0.05; // sets the damping factor
 controls.maxPolarAngle = Math.PI / 2; // No downward rotation beyond horizontal view
 controls.minDistance = 1; // Minimum zoom distance
 controls.maxDistance = 6; // Maximum zoom distance
+
+// Add auto-rotate to indicate the 3D nature
+controls.autoRotate = true;
+controls.autoRotateSpeed = 1.0; // Speed of rotation
+
+// Stop auto-rotation on user interaction
+controls.addEventListener('start', () => {
+  controls.autoRotate = false; // Stop auto-rotation once interacted with
+});
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const overlay = document.getElementById('overlay-message');
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+      overlay.remove();
+    }, 1000); // Remove element after fade-out
+  }, 3000); // Show message for 3 seconds
+});
+
 
 function animate() {
   requestAnimationFrame(animate);
@@ -584,35 +634,7 @@ controlPanelClose.addEventListener('click', () => {
 });
 
 controlPanelToggle.addEventListener('click', () => {
-  controlPanel.classList.remove('collapsed');
-});
-
-// Adjust control panel visibility on window resize
-window.addEventListener('resize', () => {
-  if (window.innerWidth > 767) {
-    controlPanel.classList.remove('collapsed');
-    controlPanelToggle.style.display = 'none';
-  } else {
-    controlPanel.classList.add('collapsed');
-    controlPanelToggle.style.display = 'block';
-  }
-});
-
-// Initialize control panel visibility
-if (window.innerWidth > 767) {
-  controlPanel.classList.remove('collapsed');
-  controlPanelToggle.style.display = 'none';
-} else {
-  controlPanel.classList.add('collapsed');
-  controlPanelToggle.style.display = 'block';
-}
-
-// Collapsible Sections
-document.querySelectorAll('.control-section h3').forEach((header) => {
-  header.addEventListener('click', () => {
-    const section = header.parentElement;
-    section.classList.toggle('collapsed');
-  });
+  controlPanel.classList.toggle('collapsed');
 });
 
 // Control Elements
@@ -630,42 +652,72 @@ const shelvesVisibleCheckbox = document.getElementById('shelves-visible');
 const numCubesXInput = document.getElementById('num-cubes-x');
 const numCubesYInput = document.getElementById('num-cubes-y');
 const numCubesZInput = document.getElementById('num-cubes-z');
-const textureSelection = document.getElementById('texture-selection');
+const textureSwatches = document.querySelectorAll('.texture-swatch');
+
+// Function to update the slider fill
+function updateSliderFill(slider) {
+  const value = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
+  slider.style.setProperty('--value', `${value}%`);
+}
+
+// Update slider fill on input
+const sliders = document.querySelectorAll('input[type="range"]');
+sliders.forEach((slider) => {
+  updateSliderFill(slider);
+  slider.addEventListener('input', () => {
+    updateSliderFill(slider);
+  });
+});
 
 // Event Listeners for Controls
 resetCameraButton.addEventListener('click', resetCamera);
 
+// Overall Size Sliders
 overallWidthInput.addEventListener('input', () => {
   dimensions.width = parseFloat(overallWidthInput.value);
-  updateCubeGeometry();
-});
-overallHeightInput.addEventListener('input', () => {
-  dimensions.height = parseFloat(overallHeightInput.value);
-  updateCubeGeometry();
-});
-overallDepthInput.addEventListener('input', () => {
-  dimensions.depth = parseFloat(overallDepthInput.value);
+  document.getElementById('overall-width-value').textContent = overallWidthInput.value;
   updateCubeGeometry();
 });
 
+overallHeightInput.addEventListener('input', () => {
+  dimensions.height = parseFloat(overallHeightInput.value);
+  document.getElementById('overall-height-value').textContent = overallHeightInput.value;
+  updateCubeGeometry();
+});
+
+overallDepthInput.addEventListener('input', () => {
+  dimensions.depth = parseFloat(overallDepthInput.value);
+  document.getElementById('overall-depth-value').textContent = overallDepthInput.value;
+  updateCubeGeometry();
+});
+
+// Cube Properties Sliders
 cubeWidthInput.addEventListener('input', () => {
   cubeProperties.cubeWidth = parseFloat(cubeWidthInput.value);
+  document.getElementById('cube-width-value').textContent = cubeWidthInput.value;
   updateCubeGeometry();
 });
+
 cubeHeightInput.addEventListener('input', () => {
   cubeProperties.cubeHeight = parseFloat(cubeHeightInput.value);
+  document.getElementById('cube-height-value').textContent = cubeHeightInput.value;
   updateCubeGeometry();
 });
+
 cubeDepthInput.addEventListener('input', () => {
   cubeProperties.cubeDepth = parseFloat(cubeDepthInput.value);
+  document.getElementById('cube-depth-value').textContent = cubeDepthInput.value;
   updateCubeGeometry();
 });
+
 cubeThicknessInput.addEventListener('input', () => {
   cubeProperties.thickness = closestAllowedThickness(parseFloat(cubeThicknessInput.value));
   cubeThicknessInput.value = cubeProperties.thickness.toFixed(3);
+  document.getElementById('cube-thickness-value').textContent = cubeThicknessInput.value;
   updateCubeGeometry();
 });
 
+// Visibility Toggles
 frontPanelVisibleCheckbox.addEventListener('change', () => {
   cubeProperties.frontPanelVisible = frontPanelVisibleCheckbox.checked;
   updateCubeGeometry();
@@ -679,33 +731,55 @@ shelvesVisibleCheckbox.addEventListener('change', () => {
   updateCubeGeometry();
 });
 
+// Repetition Sliders
 numCubesXInput.addEventListener('input', () => {
   numCubes.numCubesX = parseInt(numCubesXInput.value, 10);
+  document.getElementById('num-cubes-x-value').textContent = numCubesXInput.value;
   updateCubeGeometry();
 });
 numCubesYInput.addEventListener('input', () => {
   numCubes.numCubesY = parseInt(numCubesYInput.value, 10);
+  document.getElementById('num-cubes-y-value').textContent = numCubesYInput.value;
   updateCubeGeometry();
 });
 numCubesZInput.addEventListener('input', () => {
   numCubes.numCubesZ = parseInt(numCubesZInput.value, 10);
+  document.getElementById('num-cubes-z-value').textContent = numCubesZInput.value;
   updateCubeGeometry();
 });
 
-textureSelection.addEventListener('change', () => {
-  cubeProperties.selectedTexture = textureSelection.value;
-  updateLaminatedMaterial();
+// Texture Swatches
+textureSwatches.forEach((swatch) => {
+  swatch.addEventListener('click', () => {
+    // Remove 'selected' class from all swatches
+    textureSwatches.forEach((s) => s.classList.remove('selected'));
+
+    // Add 'selected' class to clicked swatch
+    swatch.classList.add('selected');
+
+    // Update the selected texture
+    cubeProperties.selectedTexture = swatch.getAttribute('data-texture');
+    updateLaminatedMaterial();
+  });
 });
 
 // Ensure the initial control values match the properties
-overallWidthInput.value = dimensions.width.toFixed(2);
-overallHeightInput.value = dimensions.height.toFixed(2);
-overallDepthInput.value = dimensions.depth.toFixed(2);
+// (Set initial values for sliders and displays)
+overallWidthInput.value = dimensions.width.toFixed(1);
+overallHeightInput.value = dimensions.height.toFixed(1);
+overallDepthInput.value = dimensions.depth.toFixed(1);
+document.getElementById('overall-width-value').textContent = overallWidthInput.value;
+document.getElementById('overall-height-value').textContent = overallHeightInput.value;
+document.getElementById('overall-depth-value').textContent = overallDepthInput.value;
 
 cubeWidthInput.value = cubeProperties.cubeWidth.toFixed(2);
 cubeHeightInput.value = cubeProperties.cubeHeight.toFixed(2);
 cubeDepthInput.value = cubeProperties.cubeDepth.toFixed(2);
 cubeThicknessInput.value = cubeProperties.thickness.toFixed(3);
+document.getElementById('cube-width-value').textContent = cubeWidthInput.value;
+document.getElementById('cube-height-value').textContent = cubeHeightInput.value;
+document.getElementById('cube-depth-value').textContent = cubeDepthInput.value;
+document.getElementById('cube-thickness-value').textContent = cubeThicknessInput.value;
 
 frontPanelVisibleCheckbox.checked = cubeProperties.frontPanelVisible;
 backPanelVisibleCheckbox.checked = cubeProperties.backPanelVisible;
@@ -714,5 +788,6 @@ shelvesVisibleCheckbox.checked = cubeProperties.showHorizontalPanels;
 numCubesXInput.value = numCubes.numCubesX;
 numCubesYInput.value = numCubes.numCubesY;
 numCubesZInput.value = numCubes.numCubesZ;
-
-textureSelection.value = cubeProperties.selectedTexture;
+document.getElementById('num-cubes-x-value').textContent = numCubesXInput.value;
+document.getElementById('num-cubes-y-value').textContent = numCubesYInput.value;
+document.getElementById('num-cubes-z-value').textContent = numCubesZInput.value;
