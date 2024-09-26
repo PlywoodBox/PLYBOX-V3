@@ -11,18 +11,18 @@
   <!-- 3D Renderer Container -->
   <div id="renderer-container"></div>
 
-  <!-- Control Panel -->
-  <div id="control-panel" class="collapsed">
+  <div id="control-panel">
     <div id="control-panel-header">
       <h2>Control Panel</h2>
       <button id="control-panel-close">&times;</button>
     </div>
     <div id="control-panel-content">
-      <!-- Camera Section -->
+      <!-- Reset Section -->
       <div class="control-section">
-        <h3>Camera</h3>
+        <h3>Reset</h3>
         <div class="control-content">
           <button id="reset-camera">Reset Camera</button>
+          <button id="reset-box">Reset Box</button> <!-- Added Reset Box Button -->
         </div>
       </div>
       <!-- Overall Size Section -->
@@ -52,40 +52,40 @@
           </label>
         </div>
       </div>
-      <!-- Cube Properties Section -->
-<div class="control-section">
-  <h3>Cube Properties</h3>
-  <div class="control-content">
-    <label>
-      Cube Width
-      <div class="control-input">
-        <input type="range" id="cube-width" min="0.01" max="2.4" step="0.01" value="0.4">
-        <span id="cube-width-value">0.4</span> m
+      <!-- Box Size Section --> <!-- Renamed from Cube Properties -->
+      <div class="control-section">
+        <h3>Box Size</h3> <!-- Renamed -->
+        <div class="control-content">
+          <label>
+            Box Width <!-- Renamed -->
+            <div class="control-input">
+              <input type="range" id="cube-width" min="0.01" max="2.4" step="0.01" value="0.4">
+              <span id="cube-width-value">0.4</span> m
+            </div>
+          </label>
+          <label>
+            Box Height <!-- Renamed -->
+            <div class="control-input">
+              <input type="range" id="cube-height" min="0.01" max="2.4" step="0.01" value="0.4">
+              <span id="cube-height-value">0.4</span> m
+            </div>
+          </label>
+          <label>
+            Box Depth <!-- Renamed -->
+            <div class="control-input">
+              <input type="range" id="cube-depth" min="0.01" max="2.4" step="0.01" value="0.4">
+              <span id="cube-depth-value">0.4</span> m
+            </div>
+          </label>
+          <label>
+            Thickness
+            <div class="control-input">
+              <input type="range" id="cube-thickness" min="1.2" max="3.0" step="0.1" value="1.8">
+              <span id="cube-thickness-value">1.8</span> cm
+            </div>
+          </label>
+        </div>
       </div>
-    </label>
-    <label>
-      Cube Height
-      <div class="control-input">
-        <input type="range" id="cube-height" min="0.01" max="2.4" step="0.01" value="0.4">
-        <span id="cube-height-value">0.4</span> m
-      </div>
-    </label>
-    <label>
-      Cube Depth
-      <div class="control-input">
-        <input type="range" id="cube-depth" min="0.01" max="2.4" step="0.01" value="0.4">
-        <span id="cube-depth-value">0.4</span> m
-      </div>
-    </label>
-    <label>
-      Thickness
-      <div class="control-input">
-        <input type="range" id="cube-thickness" min="1.2" max="3.0" step="0.1" value="1.8">
-        <span id="cube-thickness-value">1.8</span> cm
-      </div>
-    </label>
-  </div>
-</div>
       <!-- Visibility Section -->
       <div class="control-section">
         <h3>Visibility</h3>
@@ -112,7 +112,7 @@
         <h3>Repetition</h3>
         <div class="control-content">
           <label>
-          Number of X
+            Number of X
             <div class="control-input">
               <input type="range" id="num-cubes-x" min="1" max="10" step="1" value="1">
               <span id="num-cubes-x-value">1</span>
@@ -126,7 +126,7 @@
             </div>
           </label>
           <label>
-           Number of Z
+            Number of Z
             <div class="control-input">
               <input type="range" id="num-cubes-z" min="1" max="2" step="1" value="1">
               <span id="num-cubes-z-value">1</span>
@@ -134,9 +134,9 @@
           </label>
         </div>
       </div>
-      <!-- Texture Selection Section -->
+      <!-- Colour Section --> <!-- Renamed from Texture Selection -->
       <div class="control-section">
-        <h3>Texture Selection</h3>
+        <h3>Colour</h3> <!-- Renamed -->
         <div class="control-content">
           <div class="texture-selection">
             <span class="texture-label">Lamination</span>
@@ -156,12 +156,12 @@
 
   <div id="overlay-message">Play!</div>
 
-<!-- Control Panel Toggle Button -->
-<button id="control-panel-toggle" aria-label="Toggle Control Panel" aria-expanded="false">
-  <span class="bar bar1"></span>
-  <span class="bar bar2"></span>
-  <span class="bar bar3"></span>
-</button>
+  <!-- Control Panel Toggle Button -->
+  <button id="control-panel-toggle" aria-label="Toggle Control Panel" aria-expanded="false">
+    <span class="bar bar1"></span>
+    <span class="bar bar2"></span>
+    <span class="bar bar3"></span>
+  </button>
 
   <!-- Include your main JavaScript file -->
   <script type="module" src="main.js"></script>
