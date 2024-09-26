@@ -31,15 +31,24 @@
         <div class="control-content">
           <label>
             Width (m)
-            <input type="number" id="overall-width" min="0.1" step="0.1" value="0.6">
+            <div class="control-input">
+              <input type="range" id="overall-width" min="0.1" max="10" step="0.1" value="0.6">
+              <span id="overall-width-value">0.6</span> m
+            </div>
           </label>
           <label>
             Height (m)
-            <input type="number" id="overall-height" min="0.1" step="0.1" value="0.6">
+            <div class="control-input">
+              <input type="range" id="overall-height" min="0.1" max="10" step="0.1" value="0.6">
+              <span id="overall-height-value">0.6</span> m
+            </div>
           </label>
           <label>
             Depth (m)
-            <input type="number" id="overall-depth" min="0.1" step="0.1" value="0.6">
+            <div class="control-input">
+              <input type="range" id="overall-depth" min="0.1" max="10" step="0.1" value="0.6">
+              <span id="overall-depth-value">0.6</span> m
+            </div>
           </label>
         </div>
       </div>
@@ -49,19 +58,31 @@
         <div class="control-content">
           <label>
             Cube Width (m)
-            <input type="number" id="cube-width" min="0.01" step="0.01" value="0.4">
+            <div class="control-input">
+              <input type="range" id="cube-width" min="0.01" max="2.4" step="0.01" value="0.4">
+              <span id="cube-width-value">0.4</span> m
+            </div>
           </label>
           <label>
             Cube Height (m)
-            <input type="number" id="cube-height" min="0.01" step="0.01" value="0.4">
+            <div class="control-input">
+              <input type="range" id="cube-height" min="0.01" max="2.4" step="0.01" value="0.4">
+              <span id="cube-height-value">0.4</span> m
+            </div>
           </label>
           <label>
             Cube Depth (m)
-            <input type="number" id="cube-depth" min="0.01" step="0.01" value="0.4">
+            <div class="control-input">
+              <input type="range" id="cube-depth" min="0.01" max="2.4" step="0.01" value="0.4">
+              <span id="cube-depth-value">0.4</span> m
+            </div>
           </label>
           <label>
             Thickness (m)
-            <input type="number" id="cube-thickness" min="0.012" max="0.03" step="0.001" value="0.018">
+            <div class="control-input">
+              <input type="range" id="cube-thickness" min="0.012" max="0.03" step="0.001" value="0.018">
+              <span id="cube-thickness-value">0.018</span> m
+            </div>
           </label>
         </div>
       </div>
@@ -69,17 +90,20 @@
       <div class="control-section">
         <h3>Visibility</h3>
         <div class="control-content">
-          <label>
-            <input type="checkbox" id="front-panel-visible" checked>
+          <label class="toggle-switch">
             Front On/Off
+            <input type="checkbox" id="front-panel-visible" checked>
+            <span class="slider"></span>
           </label>
-          <label>
-            <input type="checkbox" id="back-panel-visible" checked>
+          <label class="toggle-switch">
             Back On/Off
+            <input type="checkbox" id="back-panel-visible" checked>
+            <span class="slider"></span>
           </label>
-          <label>
-            <input type="checkbox" id="shelves-visible" checked>
+          <label class="toggle-switch">
             Shelves On/Off
+            <input type="checkbox" id="shelves-visible" checked>
+            <span class="slider"></span>
           </label>
         </div>
       </div>
@@ -89,15 +113,24 @@
         <div class="control-content">
           <label>
             Number of Cubes X
-            <input type="number" id="num-cubes-x" min="1" max="10" step="1" value="1">
+            <div class="control-input">
+              <input type="range" id="num-cubes-x" min="1" max="10" step="1" value="1">
+              <span id="num-cubes-x-value">1</span>
+            </div>
           </label>
           <label>
             Number of Cubes Y
-            <input type="number" id="num-cubes-y" min="1" max="10" step="1" value="1">
+            <div class="control-input">
+              <input type="range" id="num-cubes-y" min="1" max="10" step="1" value="1">
+              <span id="num-cubes-y-value">1</span>
+            </div>
           </label>
           <label>
             Number of Cubes Z
-            <input type="number" id="num-cubes-z" min="1" max="2" step="1" value="1">
+            <div class="control-input">
+              <input type="range" id="num-cubes-z" min="1" max="2" step="1" value="1">
+              <span id="num-cubes-z-value">1</span>
+            </div>
           </label>
         </div>
       </div>
@@ -105,21 +138,22 @@
       <div class="control-section">
         <h3>Texture Selection</h3>
         <div class="control-content">
-          <label for="texture-selection">Lamination</label>
-          <select id="texture-selection">
-            <option value="Grey Lamination">Grey</option>
-            <option value="White Lamination">White</option>
-            <option value="Yellow Lamination">Yellow</option>
-            <option value="Natural Finish">Natural</option>
-            <option value="Red Lamination" selected>Red</option>
-            <option value="Blue Lamination">Blue</option>
-          </select>
+          <div class="texture-options">
+            <div class="texture-swatch" data-texture="Grey Lamination" style="background-color: #888888;"></div>
+            <div class="texture-swatch" data-texture="White Lamination" style="background-color: #ffffff;"></div>
+            <div class="texture-swatch" data-texture="Yellow Lamination" style="background-color: #ffd700;"></div>
+            <div class="texture-swatch" data-texture="Natural Finish" style="background-color: #8B4513;"></div>
+            <div class="texture-swatch selected" data-texture="Red Lamination" style="background-color: #ff0000;"></div>
+            <div class="texture-swatch" data-texture="Blue Lamination" style="background-color: #0000ff;"></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Control Panel Toggle Button (for mobile) -->
+<div id="overlay-message">Play!</div>
+
+  <!-- Control Panel Toggle Button -->
   <button id="control-panel-toggle">&#9776;</button>
 
   <!-- Include your main JavaScript file -->
