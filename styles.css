@@ -34,7 +34,7 @@ body {
     width: 100%;
     max-height: 30vh; /* 30% of viewport height */
     transform: translateY(100%); /* Start hidden at the bottom */
-    padding: 20px; /* Added overall padding */
+    padding: 10px; /* Added overall padding */
 
   }
 
@@ -51,7 +51,8 @@ body {
     width: 300px;
     height: 100%;
     transform: translateX(0); /* Start visible */
-    padding: 20px; /* Added overall padding */
+    padding: 10px; /* Added overall padding */
+    padding-right: 10px;
   }
 
   #control-panel.collapsed {
