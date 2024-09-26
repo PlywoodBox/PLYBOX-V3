@@ -1,5 +1,3 @@
-// main.js
-
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.127.0/build/three.module.js';
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.127.0/examples/jsm/controls/OrbitControls.js';
 
@@ -81,12 +79,14 @@ directionalLight.shadow.mapSize.width = 4096;
 directionalLight.shadow.mapSize.height = 4096;
 scene.add(directionalLight);
 
-const allowedThicknesses = [0.012, 0.018, 0.024, 0.03]; // Allowed values in meters
+// Allowed Thicknesses in centimeters
+const allowedThicknesses = [1.2, 1.8, 2.4, 3.0]; // Allowed values in centimeters
 
-function closestAllowedThickness(value) {
-  return allowedThicknesses.reduce((prev, curr) =>
+function closestAllowedThickness(value, toMeters = true) {
+  const closest = allowedThicknesses.reduce((prev, curr) =>
     Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
   );
+  return toMeters ? closest / 100 : closest; // Convert based on the flag
 }
 
 // Cube properties, dimensions, spacing, etc.
@@ -96,7 +96,7 @@ let viewProperties = {
 let cubeProperties = {
   transparency: true,
   opacity: 1,
-  thickness: 0.018,
+  thickness: closestAllowedThickness(1.8), // Initialize in meters
   cubeWidth: 0.4,
   cubeHeight: 0.4,
   cubeDepth: 0.4,
@@ -384,8 +384,8 @@ function updateLaminatedMaterial() {
 
 function createSectionMesh(width, height, depth, offsetX, offsetY, offsetZ) {
   const thickness = cubeProperties.thickness;
-  const offset = 0; // 0mm offset from the edges for the horizontal panels!!!
-  const frontPanelGap = spacing.frontPanelGap; // 10mm -> 0.01 meters
+  const offset = 0; // 0cm offset from the edges for the horizontal panels!!!
+  const frontPanelGap = spacing.frontPanelGap; // 10cm -> 0.005 meters
 
   const group = new THREE.Group();
 
@@ -533,10 +533,10 @@ function createSectionMesh(width, height, depth, offsetX, offsetY, offsetZ) {
   group.add(backPanel);
 
   // Add Cylinders with updated material based on selected lamination
-  const cylinderRadius = 0.015; // 15mm radius
+  const cylinderRadius = 0.015; // 15cm radius (if you want to convert to cm, adjust accordingly)
   const cylinderHeight = spacing.cubeSpacing; // Already in meters
-  const edgeOffsetX = 0.04; // 40mm offset in meters
-  const edgeOffsetZ = 0.04; // 40mm offset converted to meters
+  const edgeOffsetX = 0.04; // 40cm offset in meters (0.04 m)
+  const edgeOffsetZ = 0.04; // 40cm offset converted to meters
   const numCylindersX = Math.floor(availableWidth / 0.5) + 2;
   const numCylindersZ = Math.floor(depth / 0.5) + 2;
 
@@ -594,25 +594,14 @@ controls.maxPolarAngle = Math.PI / 2; // No downward rotation beyond horizontal 
 controls.minDistance = 1; // Minimum zoom distance
 controls.maxDistance = 6; // Maximum zoom distance
 
-// Add auto-rotate to indicate the 3D nature
+// Add auto-rotate to the OrbitControls
 controls.autoRotate = true;
 controls.autoRotateSpeed = 1.0; // Speed of rotation
 
-// Stop auto-rotation on user interaction
+// Stop auto-rotate once the user interacts with the 3D interface
 controls.addEventListener('start', () => {
-  controls.autoRotate = false; // Stop auto-rotation once interacted with
+  controls.autoRotate = false; // Disable auto-rotation after user input
 });
-
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    const overlay = document.getElementById('overlay-message');
-    overlay.style.opacity = '0';
-    setTimeout(() => {
-      overlay.remove();
-    }, 1000); // Remove element after fade-out
-  }, 3000); // Show message for 3 seconds
-});
-
 
 function animate() {
   requestAnimationFrame(animate);
@@ -625,16 +614,26 @@ updateCubeGeometry();
 
 // Control Panel Elements
 const controlPanel = document.getElementById('control-panel');
-const controlPanelClose = document.getElementById('control-panel-close');
 const controlPanelToggle = document.getElementById('control-panel-toggle');
 
-// Event Listeners for Control Panel
-controlPanelClose.addEventListener('click', () => {
-  controlPanel.classList.add('collapsed');
-});
-
+// Event Listener for Control Panel Toggle Button
 controlPanelToggle.addEventListener('click', () => {
   controlPanel.classList.toggle('collapsed');
+  controlPanelToggle.classList.toggle('open'); // Toggle the 'open' class for animation
+
+  // Optional: Update the 'aria-expanded' attribute for accessibility
+  const isOpen = !controlPanel.classList.contains('collapsed');
+  controlPanelToggle.setAttribute('aria-expanded', isOpen);
+});
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const overlay = document.getElementById('overlay-message');
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+      overlay.remove();
+    }, 1000); // Remove element after fade-out
+  }, 3000); // Show message for 3 seconds
 });
 
 // Control Elements
@@ -711,9 +710,17 @@ cubeDepthInput.addEventListener('input', () => {
 });
 
 cubeThicknessInput.addEventListener('input', () => {
-  cubeProperties.thickness = closestAllowedThickness(parseFloat(cubeThicknessInput.value));
-  cubeThicknessInput.value = cubeProperties.thickness.toFixed(3);
-  document.getElementById('cube-thickness-value').textContent = cubeThicknessInput.value;
+  const thicknessCm = parseFloat(cubeThicknessInput.value);
+  const thicknessM = closestAllowedThickness(thicknessCm); // Convert to meters
+  cubeProperties.thickness = thicknessM;
+  
+  // Update the input value to the closest allowed value in cm
+  const closestCm = closestAllowedThickness(thicknessCm, false);
+  cubeThicknessInput.value = closestCm.toFixed(1);
+  
+  // Update the displayed value in cm
+  document.getElementById('cube-thickness-value').textContent = closestCm.toFixed(1);
+  
   updateCubeGeometry();
 });
 
@@ -763,6 +770,16 @@ textureSwatches.forEach((swatch) => {
   });
 });
 
+// Add event listeners to each control-section header for collapsing
+const controlSectionHeaders = document.querySelectorAll('.control-section h3');
+
+controlSectionHeaders.forEach((header) => {
+  header.addEventListener('click', () => {
+    const controlSection = header.parentElement;
+    controlSection.classList.toggle('collapsed');
+  });
+});
+
 // Ensure the initial control values match the properties
 // (Set initial values for sliders and displays)
 overallWidthInput.value = dimensions.width.toFixed(1);
@@ -775,7 +792,7 @@ document.getElementById('overall-depth-value').textContent = overallDepthInput.v
 cubeWidthInput.value = cubeProperties.cubeWidth.toFixed(2);
 cubeHeightInput.value = cubeProperties.cubeHeight.toFixed(2);
 cubeDepthInput.value = cubeProperties.cubeDepth.toFixed(2);
-cubeThicknessInput.value = cubeProperties.thickness.toFixed(3);
+cubeThicknessInput.value = (cubeProperties.thickness * 100).toFixed(1); // Convert to cm
 document.getElementById('cube-width-value').textContent = cubeWidthInput.value;
 document.getElementById('cube-height-value').textContent = cubeHeightInput.value;
 document.getElementById('cube-depth-value').textContent = cubeDepthInput.value;
