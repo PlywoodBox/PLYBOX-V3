@@ -21,28 +21,28 @@ body {
 /* Control Panel Styles */
 #control-panel {
   position: fixed;
-  right: 0;
-  top: 0;
-  width: 300px;
-  height: 100%;
-  background-color: #ffffff;
-  box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  max-height: 30vh; /* 30% of viewport height */
+  background-color: rgba(255, 255, 255, 0.5); /* 50% transparent */
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
   overflow-y: auto;
-  transform: translateX(0);
+  transform: translateY(100%); /* Start hidden */
   transition: transform 0.3s ease;
   z-index: 1000;
 }
 
 #control-panel.collapsed {
-  transform: translateX(100%);
+  transform: translateY(0); /* Slide up into view */
 }
 
 #control-panel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px;
-  background-color: #f8f8f8;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.7);
   border-bottom: 1px solid #ddd;
 }
 
@@ -58,7 +58,7 @@ body {
 }
 
 #control-panel-content {
-  padding: 15px;
+  padding: 10px;
 }
 
 .control-section {
@@ -95,19 +95,20 @@ body {
 }
 
 .control-content label {
-  display: block;
+  display: flex;
+  align-items: center;
   margin-bottom: 15px;
-  font-size: 14px;
 }
 
-.control-content label input,
-.control-content label select {
-  width: 100%;
-  padding: 8px;
-  margin-top: 5px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.control-content .control-input {
+  margin-left: 10px;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+}
+
+.control-content label span {
+  margin-left: 10px;
 }
 
 .control-content button {
@@ -115,62 +116,187 @@ body {
   width: 100%;
   font-size: 14px;
   cursor: pointer;
-  background-color: #007BFF;
+  background-color: #ff0000;
   color: #fff;
   border: none;
   border-radius: 4px;
 }
 
-.control-content label input[type="checkbox"] {
-  width: auto;
-  margin-right: 10px;
+.control-content button:hover {
+  background-color: #cc0000;
 }
 
+/* Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.toggle-switch input {
+  display: none;
+}
+
+.toggle-switch .slider {
+  position: relative;
+  width: 50px;
+  height: 24px;
+  margin-left: 10px;
+  background-color: #ccc;
+  border-radius: 34px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.toggle-switch .slider::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 2px;
+  top: 2px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle-switch input:checked + .slider {
+  background-color: #ff0000;
+}
+
+.toggle-switch input:checked + .slider::before {
+  transform: translateX(26px);
+}
+
+/* Texture Swatches */
+.texture-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.texture-swatch {
+  width: 40px;
+  height: 40px;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.texture-swatch.selected {
+  border-color: #ff0000; /* Red border for selected swatch */
+}
+
+/* Control Panel Toggle Button */
 #control-panel-toggle {
-  display: none; /* Hidden on desktop */
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #ff0000;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 1001;
 }
 
-/* Mobile Styles */
-@media (max-width: 767px) {
-  #control-panel {
-    width: 100%;
-    height: 70vh;
-    bottom: 0;
-    top: auto;
-    transform: translateY(100%);
-  }
+#control-panel-toggle:hover {
+  background-color: #cc0000;
+}
 
-  #control-panel.collapsed {
-    transform: translateY(0);
-  }
+/* Slider Styles */
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  margin: 10px 0;
+  background: transparent;
+}
 
-  #control-panel-header {
-    padding: 10px;
-  }
+input[type="range"]:focus {
+  outline: none;
+}
 
-  #control-panel-toggle {
-    display: block;
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: #007BFF;
-    color: #fff;
-    border: none;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    font-size: 24px;
-    cursor: pointer;
-    z-index: 1001;
-  }
+/* Track */
+input[type="range"]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 10px;
+  background: #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+}
 
-  body {
-    overflow: auto; /* Allow scrolling */
-  }
+input[type="range"]::-moz-range-track {
+  width: 100%;
+  height: 10px;
+  background: #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+}
 
-  #renderer-container {
-    height: 100vh;
-  }
+input[type="range"]::-ms-track {
+  width: 100%;
+  height: 10px;
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+  cursor: pointer;
+}
+
+/* Thumb */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  background: #fff;
+  border: 2px solid #ff0000;
+  border-radius: 50%;
+  cursor: pointer;
+  margin-top: -7px; /* Center the thumb */
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  background: #fff;
+  border: 2px solid #ff0000;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+input[type="range"]::-ms-thumb {
+  width: 24px;
+  height: 24px;
+  background: #fff;
+  border: 2px solid #ff0000;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Active Fill */
+input[type="range"]::-webkit-slider-runnable-track {
+  background: linear-gradient(to right, #ff0000 0%, #ff0000 var(--value), #ccc var(--value), #ccc 100%);
+}
+
+input[type="range"]::-moz-range-progress {
+  background-color: #ff0000;
+  height: 10px;
+  border-radius: 5px;
+}
+
+input[type="range"]::-ms-fill-lower {
+  background-color: #ff0000;
+  border-radius: 5px;
+}
+
+/* Hide the default track in IE */
+input[type="range"]::-ms-track {
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
 }
 
 /* Scrollbar Styling */
@@ -187,3 +313,26 @@ body {
   background-color: rgba(0,0,0,0.05);
 }
 
+#overlay-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  text-align: center;
+  z-index: 1001;
+  opacity: 1;
+  transition: opacity 1s ease-out;
+}
+
+canvas {
+  cursor: grab;
+}
+
+canvas:active {
+  cursor: grabbing;
+}
