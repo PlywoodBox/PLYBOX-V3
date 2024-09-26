@@ -18,23 +18,44 @@ body {
   overflow: hidden;
 }
 
-/* Control Panel Styles */
+/* Control Panel Styles - Common */
 #control-panel {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  max-height: 30vh; /* 30% of viewport height */
   background-color: rgba(255, 255, 255, 0.5); /* 50% transparent */
   box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
   overflow-y: auto;
-  transform: translateY(100%); /* Start hidden */
   transition: transform 0.3s ease;
   z-index: 1000;
 }
 
-#control-panel.collapsed {
-  transform: translateY(0); /* Slide up into view */
+/* Mobile View: Control Panel at the Bottom */
+@media (max-width: 768px) {
+  #control-panel {
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-height: 30vh; /* 30% of viewport height */
+    transform: translateY(100%); /* Start hidden at the bottom */
+  }
+
+  #control-panel.collapsed {
+    transform: translateY(0); /* Slide up into view */
+  }
+}
+
+/* Desktop View: Control Panel on the Right Side */
+@media (min-width: 769px) {
+  #control-panel {
+    right: 0;
+    top: 0;
+    width: 300px;
+    height: 100%;
+    transform: translateX(100%); /* Start hidden on the right */
+  }
+
+  #control-panel.collapsed {
+    transform: translateX(0); /* Slide in from the right */
+  }
 }
 
 #control-panel-header {
@@ -47,14 +68,12 @@ body {
 }
 
 #control-panel-header h2 {
-  font-size: 18px;
+  font-size: 16px; /* Reduced font size */
 }
 
+/* Hide the Close (X) Button */
 #control-panel-header button {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
+  display: none; /* Hides the close button */
 }
 
 #control-panel-content {
@@ -66,28 +85,31 @@ body {
 }
 
 .control-section h3 {
-  font-size: 16px;
+  font-size: 14px; /* Further reduced font size */
   margin-bottom: 10px;
   cursor: pointer;
   position: relative;
   padding-right: 20px;
+  padding-top: 10px; /* Added padding for consistency */
 }
 
 .control-section h3::after {
   content: '\25BC';
   position: absolute;
   right: 0;
-  top: 0;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 14px;
   transition: transform 0.3s ease;
 }
 
 .control-section.collapsed h3::after {
-  transform: rotate(-90deg);
+  transform: translateY(-50%) rotate(-90deg);
 }
 
 .control-content {
   display: block;
+  padding-top: 10px; /* Added padding for consistency */
 }
 
 .control-section.collapsed .control-content {
@@ -95,19 +117,33 @@ body {
 }
 
 .control-content label {
-  display: flex;
+  display: grid;
+  grid-template-columns: 100px 1fr; /* Fixed width for labels, flexible for controls */
   align-items: center;
   margin-bottom: 15px;
+  font-size: 14px; /* Reduced font size */
+}
+
+.control-content label > span {
+  /* Ensure the label text is in a span for styling */
+  font-size: 14px; /* Reduced font size */
 }
 
 .control-content .control-input {
-  margin-left: 10px;
-  flex-grow: 1;
+  /* Controls take up the remaining space */
   display: flex;
   align-items: center;
 }
 
 .control-content label span {
+  margin-right: 10px;
+}
+
+.control-content label span:last-child {
+  margin-right: 0;
+}
+
+.control-content label span.value {
   margin-left: 10px;
 }
 
@@ -120,6 +156,7 @@ body {
   color: #fff;
   border: none;
   border-radius: 4px;
+  transition: background-color 0.3s ease;
 }
 
 .control-content button:hover {
@@ -169,19 +206,38 @@ body {
   transform: translateX(26px);
 }
 
-/* Texture Swatches */
+/* Texture Selection Styles */
+.texture-selection {
+  display: flex;
+  align-items: center;
+  padding-top: 10px; /* Added padding for consistency */
+}
+
+.texture-label {
+  margin-right: 10px;
+  white-space: nowrap;
+}
+
 .texture-options {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 5px; /* Reduced gap for better alignment */
+}
+
+@media (min-width: 769px) {
+  .texture-options {
+    flex-wrap: nowrap; /* Prevent wrapping in desktop view */
+  }
 }
 
 .texture-swatch {
-  width: 40px;
-  height: 40px;
+  width: 18px; /* Further reduced size */
+  height: 18px; /* Further reduced size */
   border: 2px solid transparent;
   border-radius: 4px;
   cursor: pointer;
+  margin: 2px; /* Narrow margin for visibility */
+  border-color: rgba(0, 0, 0, 0.1);
 }
 
 .texture-swatch.selected {
@@ -199,9 +255,49 @@ body {
   border-radius: 50%;
   width: 50px;
   height: 50px;
-  font-size: 24px;
   cursor: pointer;
   z-index: 1001;
+  display: flex;
+  flex-direction: column; /* Ensures vertical stacking of bars */
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+/* Burger Bars */
+#control-panel-toggle .bar {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background-color: #fff;
+  margin: 3px 0;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+/* Animate to Burger when open */
+#control-panel-toggle.open .bar1 {
+  transform: rotate(0deg) translate(0, 0);
+}
+
+#control-panel-toggle.open .bar2 {
+  opacity: 1;
+}
+
+#control-panel-toggle.open .bar3 {
+  transform: rotate(0deg) translate(0, 0);
+}
+
+/* Animate to X when closed (no 'open' class) */
+#control-panel-toggle:not(.open) .bar1 {
+  transform: rotate(-45deg) translate(-5px, 6px);
+}
+
+#control-panel-toggle:not(.open) .bar2 {
+  opacity: 0;
+}
+
+#control-panel-toggle:not(.open) .bar3 {
+  transform: rotate(45deg) translate(-5px, -6px);
 }
 
 #control-panel-toggle:hover {
