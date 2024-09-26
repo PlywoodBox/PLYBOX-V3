@@ -1,5 +1,3 @@
-/* styles.css */
-
 /* Reset default styles */
 body, h1, h2, h3, p, ul, li, figure, figcaption, input, select, button, label {
   margin: 0;
@@ -50,11 +48,11 @@ body {
     top: 0;
     width: 300px;
     height: 100%;
-    transform: translateX(100%); /* Start hidden on the right */
+    transform: translateX(0); /* Start visible on desktop */
   }
 
   #control-panel.collapsed {
-    transform: translateX(0); /* Slide in from the right */
+    transform: translateX(0); /* Keep it visible */
   }
 }
 
@@ -63,12 +61,14 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: #ff0000; /* Changed to red */
+  color: #ffffff; /* Text color white */
   border-bottom: 1px solid #ddd;
 }
 
 #control-panel-header h2 {
   font-size: 16px; /* Reduced font size */
+  color: #ffffff; /* Ensure text is white */
 }
 
 /* Hide the Close (X) Button */
@@ -147,20 +147,25 @@ body {
   margin-left: 10px;
 }
 
-.control-content button {
+/* Button Styles for Reset Camera and Reset Box */
+#reset-camera,
+#reset-box {
   padding: 10px;
   width: 100%;
   font-size: 14px;
   cursor: pointer;
-  background-color: #ff0000;
-  color: #fff;
-  border: none;
+  background-color: #ffffff; /* White fill */
+  color: #000000; /* Black text */
+  border: 2px solid #ff0000; /* Red outline */
   border-radius: 4px;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin-bottom: 10px; /* Spacing between buttons */
 }
 
-.control-content button:hover {
-  background-color: #cc0000;
+#reset-camera:hover,
+#reset-box:hover {
+  background-color: #ff0000; /* Red fill on hover */
+  color: #ffffff; /* White text on hover */
 }
 
 /* Toggle Switch */
@@ -274,29 +279,16 @@ body {
   transition: transform 0.4s ease, opacity 0.4s ease;
 }
 
-/* Animate to Burger when open */
+/* Animate to X when open */
 #control-panel-toggle.open .bar1 {
-  transform: rotate(0deg) translate(0, 0);
-}
-
-#control-panel-toggle.open .bar2 {
-  opacity: 1;
-}
-
-#control-panel-toggle.open .bar3 {
-  transform: rotate(0deg) translate(0, 0);
-}
-
-/* Animate to X when closed (no 'open' class) */
-#control-panel-toggle:not(.open) .bar1 {
   transform: rotate(-45deg) translate(-5px, 6px);
 }
 
-#control-panel-toggle:not(.open) .bar2 {
+#control-panel-toggle.open .bar2 {
   opacity: 0;
 }
 
-#control-panel-toggle:not(.open) .bar3 {
+#control-panel-toggle.open .bar3 {
   transform: rotate(45deg) translate(-5px, -6px);
 }
 
