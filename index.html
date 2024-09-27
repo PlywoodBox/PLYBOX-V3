@@ -24,40 +24,40 @@
           <button id="reset-box">Reset Box</button>
         </div>
       </div>
-     <!-- Box Size Section -->
-<div class="control-section">
-  <h3>Size (cm)</h3>
-  <div class="control-content">
-    <label>
-      <span>Width</span>
-      <div class="control-input">
-        <input type="range" id="cube-width" min="1" max="240" step="1" value="40">
-        <input type="number" id="cube-width-value" value="40" step="1" min="1" max="240">
+      <!-- Box Size Section -->
+      <div class="control-section">
+        <h3>Size (cm)</h3>
+        <div class="control-content">
+          <label>
+            <span>Width</span>
+            <div class="control-input">
+              <div class="custom-slider" data-min="1" data-max="240" data-step="1" data-value="40" id="cube-width-slider"></div>
+              <input type="number" id="cube-width-value" value="40" step="1" min="1" max="240">
+            </div>
+          </label>
+          <label>
+            <span>Height</span>
+            <div class="control-input">
+              <div class="custom-slider" data-min="1" data-max="240" data-step="1" data-value="40" id="cube-height-slider"></div>
+              <input type="number" id="cube-height-value" value="40" step="1" min="1" max="240">
+            </div>
+          </label>
+          <label>
+            <span>Depth</span>
+            <div class="control-input">
+              <div class="custom-slider" data-min="1" data-max="240" data-step="1" data-value="40" id="cube-depth-slider"></div>
+              <input type="number" id="cube-depth-value" value="40" step="1" min="1" max="240">
+            </div>
+          </label>
+          <label>
+            <span>Thickness</span>
+            <div class="control-input">
+              <div class="custom-slider" data-min="1.2" data-max="3.0" data-step="0.1" data-value="1.8" id="cube-thickness-slider"></div>
+              <input type="number" id="cube-thickness-value" value="1.8" step="0.1" min="1.2" max="3.0">
+            </div>
+          </label>
+        </div>
       </div>
-    </label>
-    <label>
-      <span>Height</span>
-      <div class="control-input">
-        <input type="range" id="cube-height" min="1" max="240" step="1" value="40">
-        <input type="number" id="cube-height-value" value="40" step="1" min="1" max="240">
-      </div>
-    </label>
-    <label>
-      <span>Depth</span>
-      <div class="control-input">
-        <input type="range" id="cube-depth" min="1" max="240" step="1" value="40">
-        <input type="number" id="cube-depth-value" value="40" step="1" min="1" max="240">
-      </div>
-    </label>
-    <label>
-      <span>Thickness</span>
-      <div class="control-input">
-        <input type="range" id="cube-thickness" min="1.2" max="3.0" step="0.1" value="1.8">
-        <input type="number" id="cube-thickness-value" value="1.8" step="0.1" min="1.2" max="3.0">
-      </div>
-    </label>
-  </div>
-</div>
       <!-- Visibility Section -->
       <div class="control-section">
         <h3>Visibility</h3>
@@ -86,21 +86,21 @@
           <label>
             <span>X</span>
             <div class="control-input">
-              <input type="range" id="num-cubes-x" min="1" max="10" step="1" value="1">
+              <div class="custom-slider" data-min="1" data-max="10" data-step="1" data-value="1" id="num-cubes-x-slider"></div>
               <input type="number" id="num-cubes-x-value" value="1" min="1" max="10">
             </div>
           </label>
           <label>
             <span>Y</span>
             <div class="control-input">
-              <input type="range" id="num-cubes-y" min="1" max="10" step="1" value="1">
+              <div class="custom-slider" data-min="1" data-max="10" data-step="1" data-value="1" id="num-cubes-y-slider"></div>
               <input type="number" id="num-cubes-y-value" value="1" min="1" max="10">
             </div>
           </label>
           <label>
             <span>Z</span>
             <div class="control-input">
-              <input type="range" id="num-cubes-z" min="1" max="2" step="1" value="1">
+              <div class="custom-slider" data-min="1" data-max="2" data-step="1" data-value="1" id="num-cubes-z-slider"></div>
               <input type="number" id="num-cubes-z-value" value="1" min="1" max="2">
             </div>
           </label>
