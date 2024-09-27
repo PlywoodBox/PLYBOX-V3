@@ -445,10 +445,8 @@ canvas:active {
   cursor: grabbing;
 }
 
-.control-overlay {
-  transition: background-color 0.2s ease;
-}
-
+/* Add this to your CSS */
 .control-overlay.active {
-  background-color: rgba(255, 0, 0, 0.1); /* Light red overlay to indicate activation */
+  background-color: rgba(255, 0, 0, 0.1); /* Light red overlay */
+  transition: background-color 0.3s ease;
 }
