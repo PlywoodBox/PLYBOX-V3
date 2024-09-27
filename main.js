@@ -3,7 +3,7 @@ import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.127.0/exampl
 
 // Initialize the scene
 const scene = new THREE.Scene()
-const INTERACTION_DELAY = 2000 // Delay in milliseconds
+const INTERACTION_DELAY = 500 // Delay in milliseconds
 
 // Create both cameras
 let aspect = window.innerWidth / window.innerHeight
@@ -682,65 +682,109 @@ function isMobileDevice() {
 
 // Function to add a 0.5-second interaction delay to sliders and toggles on mobile
 function addMobileInteractionDelay() {
-  if (!isMobileDevice()) return // Apply only on mobile devices
+  if (!isMobileDevice()) return; // Apply only on mobile devices
 
   // Select all sliders and toggles within the control panel
   const controls = document.querySelectorAll(
-    '#control-panel input[type="range"], #control-panel input[type="checkbox"]',
-  )
+    '#control-panel input[type="range"], #control-panel input[type="checkbox"]'
+  );
 
   controls.forEach((control) => {
     // Ensure the parent element has position: relative for overlay positioning
-    const parent = control.parentElement
-    if (window.getComputedStyle(parent).position === "static") {
-      parent.style.position = "relative"
+    const parent = control.parentElement;
+    if (window.getComputedStyle(parent).position === 'static') {
+      parent.style.position = 'relative';
     }
 
-    // Modify the overlay creation in main.js
-    const overlay = document.createElement("div")
-    overlay.style.position = "absolute"
-    overlay.style.top = "0"
-    overlay.style.left = "0"
-    overlay.style.width = "100%"
-    overlay.style.height = "100%"
-    overlay.style.zIndex = "10" // Ensure it's above the control
-    overlay.style.backgroundColor = "transparent"
-    overlay.style.cursor = "pointer" // Indicate that it's clickable
-    overlay.classList.add("control-overlay") // Add a class for styling
+    // Create a transparent overlay div
+    const overlay = document.createElement('div');
+    overlay.style.position = 'absolute';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.zIndex = '10'; // Ensure it's above the control
+    overlay.style.backgroundColor = 'transparent';
+    overlay.style.cursor = 'pointer'; // Indicate that it's clickable
 
-    // Inside touchstart
-    overlay.classList.add("active")
+    // Append the overlay to the parent
+    parent.appendChild(overlay);
 
-    touchTimer = setTimeout(() => {
-      // After INTERACTION_DELAY milliseconds, remove the overlay to allow interaction
-      parent.removeChild(overlay)
-    }, INTERACTION_DELAY)
+    let touchTimer;
+    let touchMoved = false;
+    let initialTouchX = 0;
+    let initialTouchY = 0;
+
+    // Handle touchstart on the overlay
+    overlay.addEventListener(
+      'touchstart',
+      (e) => {
+        e.preventDefault(); // Prevent default scrolling behavior
+        e.stopPropagation(); // Stop event from reaching the control
+
+        touchMoved = false;
+        if (e.touches.length === 1) {
+          initialTouchX = e.touches[0].clientX;
+          initialTouchY = e.touches[0].clientY;
+
+          // Start the 0.5-second timer
+          touchTimer = setTimeout(() => {
+            // After 0.5 seconds, remove the overlay to allow interaction
+            parent.removeChild(overlay);
+          }, 500); // 500 milliseconds delay
+        }
+      },
+      { passive: false } // Set to non-passive to allow preventDefault
+    );
 
     // Handle touchmove on the overlay
-    overlay.addEventListener("touchmove", (e) => {
-      const touch = e.touches[0]
-      const deltaX = Math.abs(touch.clientX - initialTouchX)
-      const deltaY = Math.abs(touch.clientY - initialTouchY)
+    overlay.addEventListener(
+      'touchmove',
+      (e) => {
+        e.preventDefault(); // Prevent default scrolling behavior
+        e.stopPropagation(); // Stop event from reaching the control
 
-      // If the user moves the touch beyond a threshold, treat it as a scroll
-      if (deltaX > 10 || deltaY > 10) {
-        // Threshold in pixels
-        touchMoved = true
-        clearTimeout(touchTimer)
-      }
-    })
+        const touch = e.touches[0];
+        const deltaX = Math.abs(touch.clientX - initialTouchX);
+        const deltaY = Math.abs(touch.clientY - initialTouchY);
+
+        // If the user moves the touch beyond a threshold, treat it as a scroll
+        if (deltaX > 10 || deltaY > 10) {
+          touchMoved = true;
+          clearTimeout(touchTimer);
+          // Allow scrolling by keeping the overlay
+        }
+      },
+      { passive: false }
+    );
 
     // Handle touchend on the overlay
-    overlay.addEventListener("touchend", (e) => {
-      clearTimeout(touchTimer)
-      if (!touchMoved) {
-        // If touch was held without significant movement, do nothing as the overlay is already removed
-      } else {
-        // If touch was a scroll, keep the overlay to prevent interaction
-        // Optionally, you can reset the overlay after some time if needed
-      }
-    })
-  })
+    overlay.addEventListener(
+      'touchend',
+      (e) => {
+        e.preventDefault(); // Prevent default touch behavior
+        e.stopPropagation(); // Stop event from reaching the control
+
+        clearTimeout(touchTimer);
+
+        if (!touchMoved) {
+          // If touch was held without significant movement, the overlay has been removed
+          // Interaction with the control is allowed for the current touch
+        } else {
+          // If touch was a scroll, do not allow interaction
+          // The overlay remains to prevent interaction
+        }
+
+        // Re-add the overlay after a short delay to ensure the touch has ended
+        setTimeout(() => {
+          if (!parent.contains(overlay)) {
+            parent.appendChild(overlay);
+          }
+        }, 0);
+      },
+      { passive: false }
+    );
+  });
 }
 
 // Orbit Controls and Animation Loop
