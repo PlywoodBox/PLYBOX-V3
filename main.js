@@ -3,7 +3,7 @@ import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.127.0/exampl
 
 // Initialize the scene
 const scene = new THREE.Scene()
-const INTERACTION_DELAY = 1000 // Delay in milliseconds
+const INTERACTION_DELAY = 2000 // Delay in milliseconds
 
 // Create both cameras
 let aspect = window.innerWidth / window.innerHeight
