@@ -24,8 +24,6 @@ body {
   overflow-y: auto;
   transition: transform 0.3s ease;
   z-index: 1000;
-  /* Added touch-action to allow scrolling */
-  touch-action: pan-y;
 }
 
 /* Mobile View: Control Panel at the Bottom */
@@ -151,11 +149,6 @@ body {
   /* Controls take up the remaining space */
   display: flex;
   align-items: center;
-}
-
-.control-content label input[type="range"] {
-  flex: 1;
-  width: 100%; /* Ensure the slider stretches */
 }
 
 .control-content label input[type="number"] {
@@ -317,97 +310,27 @@ body {
   background-color: #cc0000;
 }
 
-/* Slider Styles */
-input[type="range"] {
-  -webkit-appearance: none;
-  width: 100%;
-  margin: 10px 0;
-  background: transparent;
-  /* Added touch-action to allow proper handling */
-  touch-action: pan-y;
-}
-
-input[type="range"]:focus {
-  outline: none;
-}
-
-/* Track */
-input[type="range"]::-webkit-slider-runnable-track {
+/* Custom Slider Styles */
+.custom-slider {
+  position: relative;
   width: 100%;
   height: 10px;
   background: #ccc;
   border-radius: 5px;
-  cursor: pointer;
+  cursor: default; /* Default cursor since only thumb is interactive */
 }
 
-input[type="range"]::-moz-range-track {
-  width: 100%;
-  height: 10px;
-  background: #ccc;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-input[type="range"]::-ms-track {
-  width: 100%;
-  height: 10px;
-  background: transparent;
-  border-color: transparent;
-  color: transparent;
-  cursor: pointer;
-}
-
-/* Thumb */
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
+.custom-slider .thumb {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
   width: 24px;
   height: 24px;
   background: #fff;
   border: 2px solid #ff0000;
   border-radius: 50%;
   cursor: pointer;
-  margin-top: -7px; /* Center the thumb */
-}
-
-input[type="range"]::-moz-range-thumb {
-  width: 24px;
-  height: 24px;
-  background: #fff;
-  border: 2px solid #ff0000;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-input[type="range"]::-ms-thumb {
-  width: 24px;
-  height: 24px;
-  background: #fff;
-  border: 2px solid #ff0000;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-/* Active Fill */
-input[type="range"]::-webkit-slider-runnable-track {
-  background: linear-gradient(to right, #ff0000 0%, #ff0000 var(--value), #ccc var(--value), #ccc 100%);
-}
-
-input[type="range"]::-moz-range-progress {
-  background-color: #ff0000;
-  height: 10px;
-  border-radius: 5px;
-}
-
-input[type="range"]::-ms-fill-lower {
-  background-color: #ff0000;
-  border-radius: 5px;
-}
-
-/* Hide the default track in IE */
-input[type="range"]::-ms-track {
-  background: transparent;
-  border-color: transparent;
-  color: transparent;
+  z-index: 1;
 }
 
 /* Scrollbar Styling */
@@ -442,21 +365,8 @@ input[type="range"]::-ms-track {
 
 canvas {
   cursor: grab;
-  /* Added touch-action to handle touch events properly */
-  touch-action: none;
 }
 
 canvas:active {
   cursor: grabbing;
-}
-
-/* For the control panel inputs */
-#control-panel input[type="range"],
-#control-panel input[type="checkbox"] {
-  touch-action: manipulation;
-}
-
-/* For the renderer canvas */
-#renderer-container canvas {
-  touch-action: none;
 }
