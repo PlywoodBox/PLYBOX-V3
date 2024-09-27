@@ -1,106 +1,98 @@
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.127.0/build/three.module.js"
-import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.127.0/examples/jsm/controls/OrbitControls.js"
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.127.0/build/three.module.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.127.0/examples/jsm/controls/OrbitControls.js';
 
 // Initialize the scene
-const scene = new THREE.Scene()
-const INTERACTION_DELAY = 500 // Delay in milliseconds
+const scene = new THREE.Scene();
 
 // Create both cameras
-let aspect = window.innerWidth / window.innerHeight
-const perspectiveCamera = new THREE.PerspectiveCamera(70, aspect, 0.1, 1000)
-const orthographicCamera = new THREE.OrthographicCamera(
-  -aspect,
-  aspect,
-  1,
-  -1,
-  0.1,
-  1000,
-)
+let aspect = window.innerWidth / window.innerHeight;
+const perspectiveCamera = new THREE.PerspectiveCamera(70, aspect, 0.1, 1000);
+const orthographicCamera = new THREE.OrthographicCamera(-aspect, aspect, 1, -1, 0.1, 1000);
 
 // Define a common start position for both cameras
-const startPosition = new THREE.Vector3(0, 0.5, 1.5) // Start position for both cameras
-const startRotation = new THREE.Euler(0, 0, 0) // Common initial rotation
+const startPosition = new THREE.Vector3(0, 0.5, 1.5); // Start position for both cameras
+const startRotation = new THREE.Euler(0, 0, 0); // Common initial rotation
 
 // Set the initial camera
-let currentCamera = perspectiveCamera
-currentCamera.position.copy(startPosition)
-currentCamera.rotation.copy(startRotation)
+let currentCamera = perspectiveCamera;
+currentCamera.position.copy(startPosition);
+currentCamera.rotation.copy(startRotation);
 
 // Add the current camera to the scene
-scene.add(currentCamera)
+scene.add(currentCamera);
 
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
   alpha: true,
-})
-renderer.setClearColor(0xffffff, 0.8) // White background with 80% opacity
-renderer.setSize(window.innerWidth, window.innerHeight)
+});
+renderer.setClearColor(0xffffff, 0.8); // White background with 80% opacity
+renderer.setSize(window.innerWidth, window.innerHeight);
 
-renderer.shadowMap.enabled = true
-renderer.shadowMap.type = THREE.PCFSoftShadowMap
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-document.getElementById("renderer-container").appendChild(renderer.domElement)
+document.getElementById('renderer-container').appendChild(renderer.domElement);
 
 // Responsive resizing
 function onWindowResize() {
-  const width = window.innerWidth
-  const height = window.innerHeight
+  const width = window.innerWidth;
+  const height = window.innerHeight;
 
   // Update aspect ratio
-  aspect = width / height
+  aspect = width / height;
 
   // Update camera aspect ratios and projection matrices
-  perspectiveCamera.aspect = aspect
-  perspectiveCamera.updateProjectionMatrix()
+  perspectiveCamera.aspect = aspect;
+  perspectiveCamera.updateProjectionMatrix();
 
-  orthographicCamera.left = -aspect
-  orthographicCamera.right = aspect
-  orthographicCamera.top = 1
-  orthographicCamera.bottom = -1
-  orthographicCamera.updateProjectionMatrix()
+  orthographicCamera.left = -aspect;
+  orthographicCamera.right = aspect;
+  orthographicCamera.top = 1;
+  orthographicCamera.bottom = -1;
+  orthographicCamera.updateProjectionMatrix();
 
   // Update renderer size
-  renderer.setSize(width, height)
+  renderer.setSize(width, height);
 }
 
-window.addEventListener("resize", onWindowResize, false)
-onWindowResize()
+window.addEventListener('resize', onWindowResize, false);
+onWindowResize();
 
 // Lights and geometry setup
-const floorGeometry = new THREE.PlaneGeometry(20, 20)
+const floorGeometry = new THREE.PlaneGeometry(20, 20);
 const floorMaterial = new THREE.ShadowMaterial({
   opacity: 0.1,
-})
-const floor = new THREE.Mesh(floorGeometry, floorMaterial)
-floor.rotation.x = -Math.PI / 2
-floor.position.y = 0
-floor.receiveShadow = true
-scene.add(floor)
+});
+const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = 0;
+floor.receiveShadow = true;
+scene.add(floor);
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
-scene.add(ambientLight)
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7)
-directionalLight.position.set(5, 10, 7.5)
-directionalLight.castShadow = true
-directionalLight.shadow.mapSize.width = 4096
-directionalLight.shadow.mapSize.height = 4096
-scene.add(directionalLight)
+const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
+directionalLight.position.set(5, 10, 7.5);
+directionalLight.castShadow = true;
+directionalLight.shadow.mapSize.width = 4096;
+directionalLight.shadow.mapSize.height = 4096;
+scene.add(directionalLight);
 
 // Allowed Thicknesses in centimeters
-const allowedThicknesses = [1.2, 1.8, 2.4, 3.0] // Allowed values in centimeters
+const allowedThicknesses = [1.2, 1.8, 2.4, 3.0]; // Allowed values in centimeters
 
 function closestAllowedThickness(value, toMeters = true) {
   const closest = allowedThicknesses.reduce((prev, curr) =>
-    Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev,
-  )
-  return toMeters ? closest / 100 : closest // Convert based on the flag
+    Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
+  );
+  return toMeters ? closest / 100 : closest; // Convert based on the flag
 }
 
 // Cube properties, dimensions, spacing, etc.
 let viewProperties = {
   perspectiveView: true,
-}
+};
 let cubeProperties = {
   transparency: true,
   opacity: 1,
@@ -115,277 +107,231 @@ let cubeProperties = {
   topPanelVisible: true,
   bottomPanelVisible: true,
   showHorizontalPanels: true,
-  selectedTexture: "Red Lamination",
-}
+  selectedTexture: 'Red Lamination',
+};
 
 // Store initial properties for resetting
-const initialCubeProperties = { ...cubeProperties }
+const initialCubeProperties = { ...cubeProperties };
 
 let dimensions = {
   width: 0.6,
   height: 0.6,
   depth: 0.6,
-}
+};
 
 // Store initial dimensions
-const initialDimensions = { ...dimensions }
+const initialDimensions = { ...dimensions };
 
 let spacing = {
   cubeSpacing: 0.02,
   frontPanelGap: 0.005,
-}
+};
 
 let numCubes = {
   numCubesX: 1,
   numCubesY: 1,
   numCubesZ: 1,
-}
+};
 
 // Store initial numCubes
-const initialNumCubes = { ...numCubes }
+const initialNumCubes = { ...numCubes };
 
 let panelProperties = {
   showLargePanel: false,
   showFloorPanel: false,
-}
+};
 
 // Function: Smooth reset camera to start position
 function resetCamera() {
-  const duration = 1 // Transition duration in seconds
-  const startPos = currentCamera.position.clone() // Clone the current position
-  const startRot = currentCamera.rotation.clone() // Clone the current rotation
+  const duration = 1; // Transition duration in seconds
+  const startPos = currentCamera.position.clone(); // Clone the current position
+  const startRot = currentCamera.rotation.clone(); // Clone the current rotation
 
   // Calculate bounding box center and distance based on geometry dimensions
-  const center = new THREE.Vector3(0, dimensions.height / 2, 0) // Center of the geometry
-  const maxDimension = Math.max(
-    dimensions.width,
-    dimensions.height,
-    dimensions.depth,
-  ) // Get the largest dimension
+  const center = new THREE.Vector3(0, dimensions.height / 2, 0); // Center of the geometry
+  const maxDimension = Math.max(dimensions.width, dimensions.height, dimensions.depth); // Get the largest dimension
   // Adjust the distance factor based on the geometry width to avoid going too far
-  const widthFactor = Math.min(1, dimensions.width / dimensions.height) // Limit width contribution
-  const distanceFactor = 1 + widthFactor / 2 // Base distance factor with smaller width contribution
+  const widthFactor = Math.min(1, dimensions.width / dimensions.height); // Limit width contribution
+  const distanceFactor = 1 + widthFactor / 2; // Base distance factor with smaller width contribution
 
   // Calculate target position based on geometry size and aspect ratio
-  const targetPos = new THREE.Vector3(
-    center.x,
-    center.y,
-    maxDimension * distanceFactor,
-  )
-  const targetRot = new THREE.Euler(0, 0, 0) // Keep the rotation looking forward
-  const startTime = performance.now()
+  const targetPos = new THREE.Vector3(center.x, center.y, maxDimension * distanceFactor);
+  const targetRot = new THREE.Euler(0, 0, 0); // Keep the rotation looking forward
+  const startTime = performance.now();
 
   function animateReset(time) {
-    const elapsedTime = (time - startTime) / 1000 // Convert to seconds
-    const t = Math.min(elapsedTime / duration, 1) // Normalize time to [0, 1]
+    const elapsedTime = (time - startTime) / 1000; // Convert to seconds
+    const t = Math.min(elapsedTime / duration, 1); // Normalize time to [0, 1]
 
     // Smoothly interpolate the position and rotation
-    currentCamera.position.lerpVectors(startPos, targetPos, t)
+    currentCamera.position.lerpVectors(startPos, targetPos, t);
 
     // Interpolate the rotation smoothly using slerp (for Euler angles, manually interpolate each axis)
     currentCamera.rotation.set(
       THREE.MathUtils.lerp(startRot.x, targetRot.x, t),
       THREE.MathUtils.lerp(startRot.y, targetRot.y, t),
-      THREE.MathUtils.lerp(startRot.z, targetRot.z, t),
-    )
+      THREE.MathUtils.lerp(startRot.z, targetRot.z, t)
+    );
 
     // Update the controls target to the center of the geometry
-    controls.target.lerp(center, t)
+    controls.target.lerp(center, t);
 
     // Update controls for the current frame
-    controls.update()
+    controls.update();
 
     // Continue the animation if not done
     if (t < 1) {
-      requestAnimationFrame(animateReset)
+      requestAnimationFrame(animateReset);
     }
   }
 
-  requestAnimationFrame(animateReset)
+  requestAnimationFrame(animateReset);
 }
 
 function updateCameraView() {
   if (viewProperties.perspectiveView) {
-    currentCamera = perspectiveCamera
+    currentCamera = perspectiveCamera;
   } else {
     // Update orthographic camera parameters
-    const frustumSize = 1
-    orthographicCamera.left = -frustumSize * aspect
-    orthographicCamera.right = frustumSize * aspect
-    orthographicCamera.top = frustumSize
-    orthographicCamera.bottom = -frustumSize
-    orthographicCamera.updateProjectionMatrix()
+    const frustumSize = 1;
+    orthographicCamera.left = -frustumSize * aspect;
+    orthographicCamera.right = frustumSize * aspect;
+    orthographicCamera.top = frustumSize;
+    orthographicCamera.bottom = -frustumSize;
+    orthographicCamera.updateProjectionMatrix();
 
-    currentCamera = orthographicCamera
+    currentCamera = orthographicCamera;
   }
 
   // Sync camera position and rotation
-  currentCamera.position.copy(perspectiveCamera.position)
-  currentCamera.rotation.copy(perspectiveCamera.rotation)
-  controls.object = currentCamera
-  controls.update()
+  currentCamera.position.copy(perspectiveCamera.position);
+  currentCamera.rotation.copy(perspectiveCamera.rotation);
+  controls.object = currentCamera;
+  controls.update();
 }
 
 function updateDimensions() {
-  const cubeWidth = cubeProperties.cubeWidth
-  const cubeHeight = cubeProperties.cubeHeight
-  const cubeDepth = cubeProperties.cubeDepth
-  const cubeSpacing = spacing.cubeSpacing
+  const cubeWidth = cubeProperties.cubeWidth;
+  const cubeHeight = cubeProperties.cubeHeight;
+  const cubeDepth = cubeProperties.cubeDepth;
+  const cubeSpacing = spacing.cubeSpacing;
 
-  dimensions.width =
-    numCubes.numCubesX * cubeWidth + (numCubes.numCubesX - 1) * cubeSpacing
-  dimensions.height =
-    numCubes.numCubesY * cubeHeight + (numCubes.numCubesY - 1) * cubeSpacing
-  dimensions.depth =
-    numCubes.numCubesZ * cubeDepth + (numCubes.numCubesZ - 1) * cubeSpacing
+  dimensions.width = numCubes.numCubesX * cubeWidth + (numCubes.numCubesX - 1) * cubeSpacing;
+  dimensions.height = numCubes.numCubesY * cubeHeight + (numCubes.numCubesY - 1) * cubeSpacing;
+  dimensions.depth = numCubes.numCubesZ * cubeDepth + (numCubes.numCubesZ - 1) * cubeSpacing;
 }
 
-let largePanel = null // Initialize largePanel outside the function
-let floorPanel = null // Initialize floorPanel outside the function
+let largePanel = null; // Initialize largePanel outside the function
+let floorPanel = null; // Initialize floorPanel outside the function
 
 function updateCubeGeometry() {
   scene.children = scene.children.filter(
-    (child) =>
-      !child.userData.isCube && child !== largePanel && child !== floorPanel,
-  )
-  updateDimensions()
+    (child) => !child.userData.isCube && child !== largePanel && child !== floorPanel
+  );
+  updateDimensions();
 
-  endGrainMaterial.opacity = cubeProperties.opacity
-  rotatedEndGrainMaterial.opacity = cubeProperties.opacity
-  laminatedMaterial.opacity = cubeProperties.opacity
-  cylinderMaterial.opacity = cubeProperties.opacity
+  endGrainMaterial.opacity = cubeProperties.opacity;
+  rotatedEndGrainMaterial.opacity = cubeProperties.opacity;
+  laminatedMaterial.opacity = cubeProperties.opacity;
+  cylinderMaterial.opacity = cubeProperties.opacity;
 
-  const cubeWidth = cubeProperties.cubeWidth
-  const cubeHeight = cubeProperties.cubeHeight
-  const cubeDepth = cubeProperties.cubeDepth
-  const cubeSpacing = spacing.cubeSpacing
+  const cubeWidth = cubeProperties.cubeWidth;
+  const cubeHeight = cubeProperties.cubeHeight;
+  const cubeDepth = cubeProperties.cubeDepth;
+  const cubeSpacing = spacing.cubeSpacing;
 
-  const sectionSizeX = cubeWidth + cubeSpacing
-  const sectionSizeY = cubeHeight + cubeSpacing
-  const sectionSizeZ = cubeDepth + cubeSpacing
+  const sectionSizeX = cubeWidth + cubeSpacing;
+  const sectionSizeY = cubeHeight + cubeSpacing;
+  const sectionSizeZ = cubeDepth + cubeSpacing;
 
-  const numSectionsX = numCubes.numCubesX
-  const numSectionsY = numCubes.numCubesY
-  const numSectionsZ = numCubes.numCubesZ
+  const numSectionsX = numCubes.numCubesX;
+  const numSectionsY = numCubes.numCubesY;
+  const numSectionsZ = numCubes.numCubesZ;
 
   for (let x = 0; x < numSectionsX; x++) {
     for (let z = 0; z < numSectionsZ; z++) {
       for (let y = 0; y < numSectionsY; y++) {
-        const offsetX = x * sectionSizeX - dimensions.width / 2
-        const offsetY = y * sectionSizeY
-        const offsetZ = z * sectionSizeZ
+        const offsetX = x * sectionSizeX - dimensions.width / 2;
+        const offsetY = y * sectionSizeY;
+        const offsetZ = z * sectionSizeZ;
         const mesh = createSectionMesh(
           cubeProperties.cubeWidth,
           cubeProperties.cubeHeight,
           cubeProperties.cubeDepth,
           offsetX,
           offsetY,
-          offsetZ,
-        )
-        scene.add(mesh)
+          offsetZ
+        );
+        scene.add(mesh);
       }
     }
   }
 
   // Handle largePanel
   if (largePanel) {
-    scene.remove(largePanel)
+    scene.remove(largePanel);
   }
 
   if (panelProperties.showLargePanel) {
-    const panelWidth = 8
-    const panelHeight = 3
-    const panelDepth = 0.1
+    const panelWidth = 8;
+    const panelHeight = 3;
+    const panelDepth = 0.1;
 
-    const largePanelGeometry = new THREE.BoxGeometry(
-      panelWidth,
-      panelHeight,
-      panelDepth,
-    )
+    const largePanelGeometry = new THREE.BoxGeometry(panelWidth, panelHeight, panelDepth);
     const largePanelMaterial = new THREE.MeshStandardMaterial({
       color: 0x888888,
-    })
-    largePanel = new THREE.Mesh(largePanelGeometry, largePanelMaterial)
+    });
+    largePanel = new THREE.Mesh(largePanelGeometry, largePanelMaterial);
 
-    largePanel.position.set(
-      panelWidth / 2 - 3,
-      panelHeight / 2,
-      -panelDepth / 2,
-    )
-    largePanel.userData.isCube = true
-    scene.add(largePanel)
+    largePanel.position.set(panelWidth / 2 - 3, panelHeight / 2, -panelDepth / 2);
+    largePanel.userData.isCube = true;
+    scene.add(largePanel);
   }
 
   // Handle floorPanel
   if (floorPanel) {
-    scene.remove(floorPanel)
+    scene.remove(floorPanel);
   }
 
   if (panelProperties.showFloorPanel) {
-    const floorWidth = 8
-    const floorDepth = 4
-    const floorThickness = 0.1
+    const floorWidth = 8;
+    const floorDepth = 4;
+    const floorThickness = 0.1;
 
-    const floorPanelGeometry = new THREE.BoxGeometry(
-      floorWidth,
-      floorThickness,
-      floorDepth,
-    )
+    const floorPanelGeometry = new THREE.BoxGeometry(floorWidth, floorThickness, floorDepth);
     const floorPanelMaterial = new THREE.MeshStandardMaterial({
       color: 0x888888,
-    })
-    floorPanel = new THREE.Mesh(floorPanelGeometry, floorPanelMaterial)
+    });
+    floorPanel = new THREE.Mesh(floorPanelGeometry, floorPanelMaterial);
 
-    floorPanel.position.set(
-      floorWidth / 2 - 3,
-      -floorThickness / 2,
-      floorDepth / 2,
-    )
-    floorPanel.userData.isCube = true
-    scene.add(floorPanel)
+    floorPanel.position.set(floorWidth / 2 - 3, -floorThickness / 2, floorDepth / 2);
+    floorPanel.userData.isCube = true;
+    scene.add(floorPanel);
   }
 }
 
-const textureLoader = new THREE.TextureLoader()
+const textureLoader = new THREE.TextureLoader();
 
-const greyLaminatedTexture = textureLoader.load(
-  "https://i.imgur.com/0yEgr94.jpeg",
-)
-const whiteLaminatedTexture = textureLoader.load(
-  "https://i.imgur.com/EjW8L4E.jpeg",
-)
-const yellowLaminatedTexture = textureLoader.load(
-  "https://i.imgur.com/QrapdXF.jpeg",
-)
-const naturalFinishTexture = textureLoader.load(
-  "https://i.imgur.com/P9YMPBs.jpg",
-)
-const redLaminatedTexture = textureLoader.load(
-  "https://i.imgur.com/30oAplv.jpeg",
-) // New Red Texture
-const blueLaminatedTexture = textureLoader.load(
-  "https://i.imgur.com/AEN7fTa.jpeg",
-) // New Blue Texture
+const greyLaminatedTexture = textureLoader.load('https://i.imgur.com/0yEgr94.jpeg');
+const whiteLaminatedTexture = textureLoader.load('https://i.imgur.com/EjW8L4E.jpeg');
+const yellowLaminatedTexture = textureLoader.load('https://i.imgur.com/QrapdXF.jpeg');
+const naturalFinishTexture = textureLoader.load('https://i.imgur.com/P9YMPBs.jpg');
+const redLaminatedTexture = textureLoader.load('https://i.imgur.com/30oAplv.jpeg'); // New Red Texture
+const blueLaminatedTexture = textureLoader.load('https://i.imgur.com/AEN7fTa.jpeg'); // New Blue Texture
 
-const endGrainTexture = textureLoader.load(
-  "https://i.imgur.com/azPNWoQ.jpeg",
-  (texture) => {
-    texture.wrapS = THREE.RepeatWrapping
-    texture.wrapT = THREE.RepeatWrapping
-    texture.repeat.set(0.1, 0.1)
-  },
-)
+const endGrainTexture = textureLoader.load('https://i.imgur.com/azPNWoQ.jpeg', (texture) => {
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(0.1, 0.1);
+});
 
-const rotatedEndGrainTexture = textureLoader.load(
-  "https://i.imgur.com/azPNWoQ.jpeg",
-  (texture) => {
-    texture.wrapS = THREE.RepeatWrapping
-    texture.wrapT = THREE.RepeatWrapping
-    texture.repeat.set(0.1, 0.1)
-    texture.rotation = Math.PI / 2
-    texture.center.set(0.5, 0.5)
-  },
-)
+const rotatedEndGrainTexture = textureLoader.load('https://i.imgur.com/azPNWoQ.jpeg', (texture) => {
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(0.1, 0.1);
+  texture.rotation = Math.PI / 2;
+  texture.center.set(0.5, 0.5);
+});
 
 let laminatedMaterial = new THREE.MeshStandardMaterial({
   map: redLaminatedTexture,
@@ -393,7 +339,7 @@ let laminatedMaterial = new THREE.MeshStandardMaterial({
   opacity: cubeProperties.opacity,
   roughness: 0.5,
   metalness: 0.1,
-})
+});
 
 let cylinderMaterial = new THREE.MeshStandardMaterial({
   map: greyLaminatedTexture, // Initial texture matching the selected lamination
@@ -401,7 +347,7 @@ let cylinderMaterial = new THREE.MeshStandardMaterial({
   opacity: cubeProperties.opacity,
   roughness: 0.5,
   metalness: 0.1,
-})
+});
 
 const endGrainMaterial = new THREE.MeshStandardMaterial({
   map: endGrainTexture,
@@ -409,7 +355,7 @@ const endGrainMaterial = new THREE.MeshStandardMaterial({
   opacity: cubeProperties.opacity,
   roughness: 0.8,
   metalness: 0.1,
-})
+});
 
 const rotatedEndGrainMaterial = new THREE.MeshStandardMaterial({
   map: rotatedEndGrainTexture,
@@ -417,44 +363,44 @@ const rotatedEndGrainMaterial = new THREE.MeshStandardMaterial({
   opacity: cubeProperties.opacity,
   roughness: 0.8,
   metalness: 0.1,
-})
+});
 
 function updateLaminatedMaterial() {
   switch (cubeProperties.selectedTexture) {
-    case "Grey Lamination":
-      laminatedMaterial.map = greyLaminatedTexture
-      break
-    case "White Lamination":
-      laminatedMaterial.map = whiteLaminatedTexture
-      break
-    case "Yellow Lamination":
-      laminatedMaterial.map = yellowLaminatedTexture
-      break
-    case "Natural Finish":
-      laminatedMaterial.map = naturalFinishTexture
-      break
-    case "Red Lamination":
-      laminatedMaterial.map = redLaminatedTexture
-      break
-    case "Blue Lamination":
-      laminatedMaterial.map = blueLaminatedTexture
-      break
+    case 'Grey Lamination':
+      laminatedMaterial.map = greyLaminatedTexture;
+      break;
+    case 'White Lamination':
+      laminatedMaterial.map = whiteLaminatedTexture;
+      break;
+    case 'Yellow Lamination':
+      laminatedMaterial.map = yellowLaminatedTexture;
+      break;
+    case 'Natural Finish':
+      laminatedMaterial.map = naturalFinishTexture;
+      break;
+    case 'Red Lamination':
+      laminatedMaterial.map = redLaminatedTexture;
+      break;
+    case 'Blue Lamination':
+      laminatedMaterial.map = blueLaminatedTexture;
+      break;
   }
-  laminatedMaterial.needsUpdate = true
-  cylinderMaterial.needsUpdate = true
-  updateCubeGeometry()
+  laminatedMaterial.needsUpdate = true;
+  cylinderMaterial.needsUpdate = true;
+  updateCubeGeometry();
 }
 
 function createSectionMesh(width, height, depth, offsetX, offsetY, offsetZ) {
-  const thickness = cubeProperties.thickness
-  const offset = 0 // 0cm offset from the edges for the horizontal panels!!!
-  const frontPanelGap = spacing.frontPanelGap // 10cm -> 0.005 meters
+  const thickness = cubeProperties.thickness;
+  const offset = 0; // 0cm offset from the edges for the horizontal panels!!!
+  const frontPanelGap = spacing.frontPanelGap; // 10cm -> 0.005 meters
 
-  const group = new THREE.Group()
+  const group = new THREE.Group();
 
   // Top and Bottom Panels
-  const panelWidth = width
-  const topPanelGeometry = new THREE.BoxGeometry(panelWidth, thickness, depth)
+  const panelWidth = width;
+  const topPanelGeometry = new THREE.BoxGeometry(panelWidth, thickness, depth);
   const topPanelMaterials = [
     endGrainMaterial,
     endGrainMaterial,
@@ -462,33 +408,25 @@ function createSectionMesh(width, height, depth, offsetX, offsetY, offsetZ) {
     laminatedMaterial,
     endGrainMaterial,
     endGrainMaterial,
-  ]
-  const topPanel = new THREE.Mesh(topPanelGeometry, topPanelMaterials)
-  topPanel.position.set(0, height / 2 - thickness / 2, 0)
-  topPanel.visible = cubeProperties.topPanelVisible
-  topPanel.castShadow = true
-  topPanel.receiveShadow = true
-  group.add(topPanel)
+  ];
+  const topPanel = new THREE.Mesh(topPanelGeometry, topPanelMaterials);
+  topPanel.position.set(0, height / 2 - thickness / 2, 0);
+  topPanel.visible = cubeProperties.topPanelVisible;
+  topPanel.castShadow = true;
+  topPanel.receiveShadow = true;
+  group.add(topPanel);
 
-  const bottomPanelGeometry = new THREE.BoxGeometry(
-    panelWidth,
-    thickness,
-    depth,
-  )
-  const bottomPanel = new THREE.Mesh(bottomPanelGeometry, topPanelMaterials)
-  bottomPanel.position.set(0, -height / 2 + thickness / 2, 0)
-  bottomPanel.visible = cubeProperties.bottomPanelVisible
-  bottomPanel.castShadow = true
-  bottomPanel.receiveShadow = true
-  group.add(bottomPanel)
+  const bottomPanelGeometry = new THREE.BoxGeometry(panelWidth, thickness, depth);
+  const bottomPanel = new THREE.Mesh(bottomPanelGeometry, topPanelMaterials);
+  bottomPanel.position.set(0, -height / 2 + thickness / 2, 0);
+  bottomPanel.visible = cubeProperties.bottomPanelVisible;
+  bottomPanel.castShadow = true;
+  bottomPanel.receiveShadow = true;
+  group.add(bottomPanel);
 
   // Left and Right Panels
-  const sidePanelHeight = height - 2 * thickness
-  const leftPanelGeometry = new THREE.BoxGeometry(
-    thickness,
-    sidePanelHeight,
-    depth,
-  )
+  const sidePanelHeight = height - 2 * thickness;
+  const leftPanelGeometry = new THREE.BoxGeometry(thickness, sidePanelHeight, depth);
   const leftPanelMaterials = [
     laminatedMaterial,
     laminatedMaterial,
@@ -496,89 +434,77 @@ function createSectionMesh(width, height, depth, offsetX, offsetY, offsetZ) {
     rotatedEndGrainMaterial,
     rotatedEndGrainMaterial,
     rotatedEndGrainMaterial,
-  ]
-  const leftPanel = new THREE.Mesh(leftPanelGeometry, leftPanelMaterials)
-  leftPanel.position.set(-width / 2 + thickness / 2, 0, 0)
-  leftPanel.visible = cubeProperties.leftPanelVisible
-  leftPanel.castShadow = true
-  leftPanel.receiveShadow = true
-  group.add(leftPanel)
+  ];
+  const leftPanel = new THREE.Mesh(leftPanelGeometry, leftPanelMaterials);
+  leftPanel.position.set(-width / 2 + thickness / 2, 0, 0);
+  leftPanel.visible = cubeProperties.leftPanelVisible;
+  leftPanel.castShadow = true;
+  leftPanel.receiveShadow = true;
+  group.add(leftPanel);
 
-  const rightPanelGeometry = new THREE.BoxGeometry(
-    thickness,
-    sidePanelHeight,
-    depth,
-  )
-  const rightPanel = new THREE.Mesh(rightPanelGeometry, leftPanelMaterials)
-  rightPanel.position.set(width / 2 - thickness / 2, 0, 0)
-  rightPanel.visible = cubeProperties.rightPanelVisible
-  rightPanel.castShadow = true
-  rightPanel.receiveShadow = true
-  group.add(rightPanel)
+  const rightPanelGeometry = new THREE.BoxGeometry(thickness, sidePanelHeight, depth);
+  const rightPanel = new THREE.Mesh(rightPanelGeometry, leftPanelMaterials);
+  rightPanel.position.set(width / 2 - thickness / 2, 0, 0);
+  rightPanel.visible = cubeProperties.rightPanelVisible;
+  rightPanel.castShadow = true;
+  rightPanel.receiveShadow = true;
+  group.add(rightPanel);
 
   // Calculate the number of middle panels along the width
-  const availableWidth = width - 2 * thickness // Available width after edge offsets
-  const numMiddlePanelX = Math.floor(availableWidth / 0.5) + 2 // At least 1 middle panel, add more if needed
-  const numMiddlePanelZ = Math.floor(depth / 0.5) + 2 // At least 1 middle panel, add more if needed
+  const availableWidth = width - 2 * thickness; // Available width after edge offsets
+  const numMiddlePanelX = Math.floor(availableWidth / 0.5) + 2; // At least 1 middle panel, add more if needed
+  const numMiddlePanelZ = Math.floor(depth / 0.5) + 2; // At least 1 middle panel, add more if needed
   // Middle Panels
-  const middlePanelDepth = depth - cubeProperties.thickness
-  const middlePanelWidth = availableWidth / (numMiddlePanelX - 1)
-  const middlePanelZ = depth / (numMiddlePanelZ - 1)
+  const middlePanelDepth = depth - cubeProperties.thickness;
+  const middlePanelWidth = availableWidth / (numMiddlePanelX - 1);
+  const middlePanelZ = depth / (numMiddlePanelZ - 1);
 
   for (let i = 1; i < numMiddlePanelX - 1; i++) {
-    const middlePanelGeometry = new THREE.BoxGeometry(
-      thickness,
-      sidePanelHeight,
-      middlePanelDepth,
-    )
-    const middlePanel = new THREE.Mesh(middlePanelGeometry, leftPanelMaterials)
+    const middlePanelGeometry = new THREE.BoxGeometry(thickness, sidePanelHeight, middlePanelDepth);
+    const middlePanel = new THREE.Mesh(middlePanelGeometry, leftPanelMaterials);
 
-    const posX = -availableWidth / 2 + i * middlePanelWidth
-    middlePanel.position.set(posX, 0, thickness / 2)
-    middlePanel.castShadow = true
-    middlePanel.receiveShadow = true
-    group.add(middlePanel)
+    const posX = -availableWidth / 2 + i * middlePanelWidth;
+    middlePanel.position.set(posX, 0, thickness / 2);
+    middlePanel.castShadow = true;
+    middlePanel.receiveShadow = true;
+    group.add(middlePanel);
   }
 
   // Create arrays of horizontal panels along the X-axis if toggle is enabled
   if (cubeProperties.showHorizontalPanels) {
     for (let i = 0; i < numMiddlePanelX - 1; i++) {
-      const startX = -availableWidth / 2 + i * middlePanelWidth
-      const endX = startX + middlePanelWidth
+      const startX = -availableWidth / 2 + i * middlePanelWidth;
+      const endX = startX + middlePanelWidth;
 
-      const availableHeight = height - 2 * thickness
-      const numHorizontalPanels = Math.floor(availableHeight / 0.5) + 2
+      const availableHeight = height - 2 * thickness;
+      const numHorizontalPanels = Math.floor(availableHeight / 0.5) + 2;
 
-      const panelHeight = availableHeight / (numHorizontalPanels - 1)
+      const panelHeight = availableHeight / (numHorizontalPanels - 1);
 
       for (let j = 1; j < numHorizontalPanels - 1; j++) {
         const horizontalPanelGeometry = new THREE.BoxGeometry(
           middlePanelWidth - 2 * offset - thickness,
           thickness,
-          middlePanelDepth,
-        )
-        const horizontalPanel = new THREE.Mesh(
-          horizontalPanelGeometry,
-          topPanelMaterials,
-        )
+          middlePanelDepth
+        );
+        const horizontalPanel = new THREE.Mesh(horizontalPanelGeometry, topPanelMaterials);
 
-        const posY = -availableHeight / 2 + j * panelHeight
-        const posX = startX + middlePanelWidth / 2
+        const posY = -availableHeight / 2 + j * panelHeight;
+        const posX = startX + middlePanelWidth / 2;
 
-        horizontalPanel.position.set(posX, posY, thickness / 2)
-        horizontalPanel.castShadow = true
-        horizontalPanel.receiveShadow = true
-        group.add(horizontalPanel)
+        horizontalPanel.position.set(posX, posY, thickness / 2);
+        horizontalPanel.castShadow = true;
+        horizontalPanel.receiveShadow = true;
+        group.add(horizontalPanel);
       }
     }
   }
 
   // Front Panels with offset for the front panel
-  const panelWidthFrontBack = width - 2 * thickness
-  const panelHeightFrontBack = height - 2 * thickness
-  const frontPanelWidthWithOffset =
-    middlePanelWidth - 2 * frontPanelGap - thickness
-  const frontPanelHeightWithOffset = panelHeightFrontBack - 2 * frontPanelGap
+  const panelWidthFrontBack = width - 2 * thickness;
+  const panelHeightFrontBack = height - 2 * thickness;
+  const frontPanelWidthWithOffset = middlePanelWidth - 2 * frontPanelGap - thickness;
+  const frontPanelHeightWithOffset = panelHeightFrontBack - 2 * frontPanelGap;
 
   const frontPanelMaterials = [
     rotatedEndGrainMaterial,
@@ -587,79 +513,69 @@ function createSectionMesh(width, height, depth, offsetX, offsetY, offsetZ) {
     endGrainMaterial,
     laminatedMaterial,
     laminatedMaterial,
-  ]
+  ];
 
   for (let i = 0; i < numMiddlePanelX - 1; i++) {
     const frontPanel = new THREE.Mesh(
-      new THREE.BoxGeometry(
-        frontPanelWidthWithOffset,
-        frontPanelHeightWithOffset,
-        thickness,
-      ),
-      frontPanelMaterials,
-    )
+      new THREE.BoxGeometry(frontPanelWidthWithOffset, frontPanelHeightWithOffset, thickness),
+      frontPanelMaterials
+    );
 
-    const posX =
-      -availableWidth / 2 + i * middlePanelWidth + middlePanelWidth / 2
-    const posZ = depth / 2 - thickness / 2 - 0.01
+    const posX = -availableWidth / 2 + i * middlePanelWidth + middlePanelWidth / 2;
+    const posZ = depth / 2 - thickness / 2 - 0.01;
 
-    frontPanel.position.set(posX, 0, posZ)
-    frontPanel.visible = cubeProperties.frontPanelVisible
-    frontPanel.castShadow = true
-    frontPanel.receiveShadow = true
-    group.add(frontPanel)
+    frontPanel.position.set(posX, 0, posZ);
+    frontPanel.visible = cubeProperties.frontPanelVisible;
+    frontPanel.castShadow = true;
+    frontPanel.receiveShadow = true;
+    group.add(frontPanel);
   }
 
   const backPanel = new THREE.Mesh(
     new THREE.BoxGeometry(panelWidthFrontBack, panelHeightFrontBack, thickness),
-    frontPanelMaterials,
-  )
-  backPanel.position.set(0, 0, -depth / 2 + thickness / 2)
-  backPanel.visible = cubeProperties.backPanelVisible
-  backPanel.castShadow = true
-  backPanel.receiveShadow = true
-  group.add(backPanel)
+    frontPanelMaterials
+  );
+  backPanel.position.set(0, 0, -depth / 2 + thickness / 2);
+  backPanel.visible = cubeProperties.backPanelVisible;
+  backPanel.castShadow = true;
+  backPanel.receiveShadow = true;
+  group.add(backPanel);
 
   // Add Cylinders with updated material based on selected lamination
-  const cylinderRadius = 0.015 // 1.5 cm radius
-  const cylinderHeight = spacing.cubeSpacing // Already in meters
-  const edgeOffsetX = 0.04 // 4 cm offset in meters (0.04 m)
-  const edgeOffsetZ = 0.04 // 4 cm offset converted to meters
-  const numCylindersX = Math.floor(availableWidth / 0.5) + 2
-  const numCylindersZ = Math.floor(depth / 0.5) + 2
-  const middlePanelZValue = depth / (numCylindersZ - 1) // Calculate based on previous logic
+  const cylinderRadius = 0.015; // 1.5 cm radius
+  const cylinderHeight = spacing.cubeSpacing; // Already in meters
+  const edgeOffsetX = 0.04; // 4 cm offset in meters (0.04 m)
+  const edgeOffsetZ = 0.04; // 4 cm offset converted to meters
+  const numCylindersX = Math.floor(availableWidth / 0.5) + 2;
+  const numCylindersZ = Math.floor(depth / 0.5) + 2;
+  const middlePanelZValue = depth / (numCylindersZ - 1); // Calculate based on previous logic
 
-  const cylinderGeometry = new THREE.CylinderGeometry(
-    cylinderRadius,
-    cylinderRadius,
-    cylinderHeight,
-    32,
-  )
+  const cylinderGeometry = new THREE.CylinderGeometry(cylinderRadius, cylinderRadius, cylinderHeight, 32);
 
   for (let i = 0; i < numCylindersX; i++) {
     for (let j = 0; j < numCylindersZ; j++) {
-      const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial)
+      const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
 
-      let posX = -availableWidth / 2 + i * middlePanelWidth
+      let posX = -availableWidth / 2 + i * middlePanelWidth;
       if (i === 0) {
-        posX += edgeOffsetX // Apply offset only to the first cylinder
+        posX += edgeOffsetX; // Apply offset only to the first cylinder
       } else if (i === numCylindersX - 1) {
-        posX -= edgeOffsetX // Apply offset only to the last cylinder
+        posX -= edgeOffsetX; // Apply offset only to the last cylinder
       }
-      let posZ = -depth / 2 + j * middlePanelZValue
+      let posZ = -depth / 2 + j * middlePanelZValue;
       if (j === 0) {
-        posZ += edgeOffsetZ // Apply offset to the first cylinder
+        posZ += edgeOffsetZ; // Apply offset to the first cylinder
       } else if (j === numCylindersZ - 1) {
-        posZ -= edgeOffsetZ // Apply offset to the last cylinder
+        posZ -= edgeOffsetZ; // Apply offset to the last cylinder
       }
 
-      const posY = -height / 2 - cylinderHeight / 2
+      const posY = -height / 2 - cylinderHeight / 2;
 
-      cylinder.position.set(posX, posY, posZ)
-      cylinder.castShadow = true
-      cylinder.receiveShadow = true
+      cylinder.position.set(posX, posY, posZ);
+      cylinder.castShadow = true;
+      cylinder.receiveShadow = true;
 
-      group.add(cylinder)
+      group.add(cylinder);
     }
   }
 
@@ -667,519 +583,470 @@ function createSectionMesh(width, height, depth, offsetX, offsetY, offsetZ) {
   group.position.set(
     offsetX + width / 2,
     offsetY + height / 2 + spacing.cubeSpacing,
-    offsetZ + depth / 2,
-  )
-
-  group.userData.isCube = true
-
-  return group
-}
-
-// Function to detect mobile devices
-function isMobileDevice() {
-  return /Mobi|Android/i.test(navigator.userAgent)
-}
-
-// Function to add a 0.5-second interaction delay to sliders and toggles on mobile
-function addMobileInteractionDelay() {
-  if (!isMobileDevice()) return; // Apply only on mobile devices
-
-  // Select all sliders and toggles within the control panel
-  const controls = document.querySelectorAll(
-    '#control-panel input[type="range"], #control-panel input[type="checkbox"]'
+    offsetZ + depth / 2
   );
 
-  controls.forEach((control) => {
-    // Ensure the parent element has position: relative for overlay positioning
-    const parent = control.parentElement;
-    if (window.getComputedStyle(parent).position === 'static') {
-      parent.style.position = 'relative';
-    }
+  group.userData.isCube = true;
 
-    // Create a transparent overlay div
-    const overlay = document.createElement('div');
-    overlay.style.position = 'absolute';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100%';
-    overlay.style.height = '100%';
-    overlay.style.zIndex = '10'; // Ensure it's above the control
-    overlay.style.backgroundColor = 'transparent';
-    overlay.style.cursor = 'pointer'; // Indicate that it's clickable
-
-    // Append the overlay to the parent
-    parent.appendChild(overlay);
-
-    let touchTimer;
-    let touchMoved = false;
-    let initialTouchX = 0;
-    let initialTouchY = 0;
-
-    // Handle touchstart on the overlay
-    overlay.addEventListener(
-      'touchstart',
-      (e) => {
-        e.preventDefault(); // Prevent default scrolling behavior
-        e.stopPropagation(); // Stop event from reaching the control
-
-        touchMoved = false;
-        overlay.classList.add('active'); // Add active class to overlay
-
-        if (e.touches.length === 1) {
-          initialTouchX = e.touches[0].clientX;
-          initialTouchY = e.touches[0].clientY;
-
-          // Start the 0.5-second timer
-          touchTimer = setTimeout(() => {
-            // After INTERACTION_DELAY milliseconds, remove the overlay to allow interaction
-            overlay.classList.remove('active'); // Remove the active class from overlay
-            parent.removeChild(overlay);
-          }, INTERACTION_DELAY);
-        }
-      },
-      { passive: false } // Set to non-passive to allow preventDefault
-    );
-
-    // Handle touchmove on the overlay
-    overlay.addEventListener(
-      'touchmove',
-      (e) => {
-        e.preventDefault(); // Prevent default scrolling behavior
-        e.stopPropagation(); // Stop event from reaching the control
-
-        const touch = e.touches[0];
-        const deltaX = Math.abs(touch.clientX - initialTouchX);
-        const deltaY = Math.abs(touch.clientY - initialTouchY);
-
-        // If the user moves the touch beyond a threshold, treat it as a scroll
-        if (deltaX > 10 || deltaY > 10) {
-          touchMoved = true;
-          clearTimeout(touchTimer);
-          overlay.classList.remove('active'); // Remove the active class when scrolling
-          // Allow scrolling by keeping the overlay
-        }
-      },
-      { passive: false }
-    );
-
-    // Handle touchend on the overlay
-    overlay.addEventListener(
-      'touchend',
-      (e) => {
-        e.preventDefault(); // Prevent default touch behavior
-        e.stopPropagation(); // Stop event from reaching the control
-
-        clearTimeout(touchTimer);
-
-        if (!touchMoved) {
-          // If touch was held without significant movement, the overlay has been removed
-          // Interaction with the control is allowed for the current touch
-        } else {
-          // If touch was a scroll, do not allow interaction
-          // The overlay remains to prevent interaction
-        }
-
-        // Re-add the overlay after a short delay to ensure the touch has ended
-        setTimeout(() => {
-          if (!parent.contains(overlay)) {
-            parent.appendChild(overlay);
-          }
-        }, 0);
-      },
-      { passive: false }
-    );
-  });
+  return group;
 }
 
 // Orbit Controls and Animation Loop
-const controls = new OrbitControls(currentCamera, renderer.domElement)
-controls.enableDamping = true // enables inertial damping
-controls.dampingFactor = 0.05 // sets the damping factor
-controls.maxPolarAngle = Math.PI / 2 // No downward rotation beyond horizontal view
-controls.minDistance = 1 // Minimum zoom distance
-controls.maxDistance = 6 // Maximum zoom distance
+const controls = new OrbitControls(currentCamera, renderer.domElement);
+controls.enableDamping = true; // enables inertial damping
+controls.dampingFactor = 0.05; // sets the damping factor
+controls.maxPolarAngle = Math.PI / 2; // No downward rotation beyond horizontal view
+controls.minDistance = 1; // Minimum zoom distance
+controls.maxDistance = 6; // Maximum zoom distance
 
 // Add auto-rotate to the OrbitControls
-controls.autoRotate = true
-controls.autoRotateSpeed = 1.0 // Speed of rotation
+controls.autoRotate = true;
+controls.autoRotateSpeed = 1.0; // Speed of rotation
 
 // Stop auto-rotate once the user interacts with the 3D interface
-controls.addEventListener("start", () => {
-  controls.autoRotate = false // Disable auto-rotation after user input
-})
+controls.addEventListener('start', () => {
+  controls.autoRotate = false; // Disable auto-rotation after user input
+});
 
 function animate() {
-  requestAnimationFrame(animate)
-  controls.update()
-  renderer.render(scene, currentCamera)
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, currentCamera);
 }
 
-animate()
-updateCubeGeometry()
+animate();
+updateCubeGeometry();
 
 // Control Panel Elements
-const controlPanel = document.getElementById("control-panel")
-const controlPanelToggle = document.getElementById("control-panel-toggle")
+const controlPanel = document.getElementById('control-panel');
+const controlPanelToggle = document.getElementById('control-panel-toggle');
 
 // Event Listener for Control Panel Toggle Button
-controlPanelToggle.addEventListener("click", () => {
-  controlPanel.classList.toggle("collapsed")
+controlPanelToggle.addEventListener('click', () => {
+  controlPanel.classList.toggle('collapsed');
 
   // Update the 'open' class based on the control panel state
-  const isOpen = !controlPanel.classList.contains("collapsed")
+  const isOpen = !controlPanel.classList.contains('collapsed');
   if (isOpen) {
-    controlPanelToggle.classList.add("open") // Show X icon
+    controlPanelToggle.classList.add('open'); // Show X icon
   } else {
-    controlPanelToggle.classList.remove("open") // Show burger icon
+    controlPanelToggle.classList.remove('open'); // Show burger icon
   }
 
   // Update the 'aria-expanded' attribute for accessibility
-  controlPanelToggle.setAttribute("aria-expanded", isOpen)
-})
+  controlPanelToggle.setAttribute('aria-expanded', isOpen);
+});
 
 // Initialize Control Panel State
 function initializeControlPanelState() {
   if (window.innerWidth >= 769) {
     // Desktop mode: Start opened
-    controlPanel.classList.remove("collapsed")
-    controlPanelToggle.classList.add("open") // Show X icon when open
-    controlPanelToggle.setAttribute("aria-expanded", "true")
+    controlPanel.classList.remove('collapsed');
+    controlPanelToggle.classList.add('open'); // Show X icon when open
+    controlPanelToggle.setAttribute('aria-expanded', 'true');
   } else {
     // Mobile mode: Start closed
-    controlPanel.classList.add("collapsed")
-    controlPanelToggle.classList.remove("open") // Show burger icon when closed
-    controlPanelToggle.setAttribute("aria-expanded", "false")
+    controlPanel.classList.add('collapsed');
+    controlPanelToggle.classList.remove('open'); // Show burger icon when closed
+    controlPanelToggle.setAttribute('aria-expanded', 'false');
   }
 }
 
-window.addEventListener("load", () => {
+// Touch Event Handling for Controls
+function addTouchHandlersToControls() {
+  const controlsElements = document.querySelectorAll(
+    '#control-panel input[type="range"], #control-panel input[type="checkbox"]'
+  );
+
+  controlsElements.forEach((control) => {
+    let touchStartY = 0;
+    let touchStartX = 0;
+    let touchMoved = false;
+
+    control.addEventListener('touchstart', (e) => {
+      touchMoved = false;
+      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+    });
+
+    control.addEventListener('touchmove', (e) => {
+      const touchY = e.touches[0].clientY;
+      const touchX = e.touches[0].clientX;
+      const deltaY = Math.abs(touchY - touchStartY);
+      const deltaX = Math.abs(touchX - touchStartX);
+
+      if (deltaY > 10) {
+        // Consider it a scroll if vertical movement exceeds 10 pixels
+        touchMoved = true;
+        // Allow the scroll to happen
+      } else {
+        // Prevent interaction if it's not a scroll
+        e.preventDefault();
+      }
+    });
+
+    control.addEventListener('touchend', (e) => {
+      if (touchMoved) {
+        // It was a scroll, do nothing
+      } else {
+        // It was a tap or slight movement, allow interaction
+        // For checkboxes, toggle the checked state
+        if (control.type === 'checkbox') {
+          control.checked = !control.checked;
+          // Trigger the change event
+          const event = new Event('change');
+          control.dispatchEvent(event);
+        }
+        // For sliders, focus on the control to allow adjustment
+        else if (control.type === 'range') {
+          control.focus();
+        }
+      }
+    });
+  });
+}
+
+// Touch Event Handling for Canvas
+function addTouchHandlersToCanvas() {
+  let touchStartY = 0;
+  let touchStartX = 0;
+  let touchMoved = false;
+
+  renderer.domElement.addEventListener('touchstart', (e) => {
+    touchMoved = false;
+    touchStartY = e.touches[0].clientY;
+    touchStartX = e.touches[0].clientX;
+  });
+
+  renderer.domElement.addEventListener('touchmove', (e) => {
+    const touchY = e.touches[0].clientY;
+    const touchX = e.touches[0].clientX;
+    const deltaY = Math.abs(touchY - touchStartY);
+    const deltaX = Math.abs(touchX - touchStartX);
+
+    if (deltaY > 10) {
+      // Consider it a scroll
+      touchMoved = true;
+      // Disable OrbitControls temporarily
+      controls.enabled = false;
+    } else {
+      // Not a scroll, allow OrbitControls
+      controls.enabled = true;
+    }
+  });
+
+  renderer.domElement.addEventListener('touchend', (e) => {
+    // Re-enable OrbitControls after touch ends
+    controls.enabled = true;
+  });
+}
+
+window.addEventListener('load', () => {
   setTimeout(() => {
-    const overlay = document.getElementById("overlay-message")
-    overlay.style.opacity = "0"
+    const overlay = document.getElementById('overlay-message');
+    overlay.style.opacity = '0';
     setTimeout(() => {
-      overlay.remove()
-    }, 1000) // Remove element after fade-out
-  }, 3000) // Show message for 3 seconds
+      overlay.remove();
+    }, 1000); // Remove element after fade-out
+  }, 3000); // Show message for 3 seconds
 
   // Initialize Control Panel State
-  initializeControlPanelState()
+  initializeControlPanelState();
 
   // Initialize Box State
-  resetBox() // Ensure the Box starts with initial properties
+  resetBox(); // Ensure the Box starts with initial properties
 
   // Automatically reset camera on launch
-  resetCamera()
+  resetCamera();
 
-  // Add the mobile interaction delay
-  addMobileInteractionDelay()
-})
+  // Add the mobile interaction handlers
+  addTouchHandlersToControls();
+  addTouchHandlersToCanvas();
+});
 
 // Control Elements
-const resetCameraButton = document.getElementById("reset-camera")
-const resetBoxButton = document.getElementById("reset-box")
-const cubeWidthInput = document.getElementById("cube-width")
-const cubeHeightInput = document.getElementById("cube-height")
-const cubeDepthInput = document.getElementById("cube-depth")
-const cubeThicknessInput = document.getElementById("cube-thickness")
-const cubeWidthValueInput = document.getElementById("cube-width-value")
-const cubeHeightValueInput = document.getElementById("cube-height-value")
-const cubeDepthValueInput = document.getElementById("cube-depth-value")
-const cubeThicknessValueInput = document.getElementById("cube-thickness-value")
-const frontPanelVisibleCheckbox = document.getElementById("front-panel-visible")
-const backPanelVisibleCheckbox = document.getElementById("back-panel-visible")
-const shelvesVisibleCheckbox = document.getElementById("shelves-visible")
-const numCubesXInput = document.getElementById("num-cubes-x")
-const numCubesYInput = document.getElementById("num-cubes-y")
-const numCubesZInput = document.getElementById("num-cubes-z")
-const numCubesXValueInput = document.getElementById("num-cubes-x-value")
-const numCubesYValueInput = document.getElementById("num-cubes-y-value")
-const numCubesZValueInput = document.getElementById("num-cubes-z-value")
-const textureSwatches = document.querySelectorAll(".texture-swatch")
+const resetCameraButton = document.getElementById('reset-camera');
+const resetBoxButton = document.getElementById('reset-box');
+const cubeWidthInput = document.getElementById('cube-width');
+const cubeHeightInput = document.getElementById('cube-height');
+const cubeDepthInput = document.getElementById('cube-depth');
+const cubeThicknessInput = document.getElementById('cube-thickness');
+const cubeWidthValueInput = document.getElementById('cube-width-value');
+const cubeHeightValueInput = document.getElementById('cube-height-value');
+const cubeDepthValueInput = document.getElementById('cube-depth-value');
+const cubeThicknessValueInput = document.getElementById('cube-thickness-value');
+const frontPanelVisibleCheckbox = document.getElementById('front-panel-visible');
+const backPanelVisibleCheckbox = document.getElementById('back-panel-visible');
+const shelvesVisibleCheckbox = document.getElementById('shelves-visible');
+const numCubesXInput = document.getElementById('num-cubes-x');
+const numCubesYInput = document.getElementById('num-cubes-y');
+const numCubesZInput = document.getElementById('num-cubes-z');
+const numCubesXValueInput = document.getElementById('num-cubes-x-value');
+const numCubesYValueInput = document.getElementById('num-cubes-y-value');
+const numCubesZValueInput = document.getElementById('num-cubes-z-value');
+const textureSwatches = document.querySelectorAll('.texture-swatch');
 
 // Function to update the slider fill
 function updateSliderFill(slider) {
-  const value = ((slider.value - slider.min) / (slider.max - slider.min)) * 100
-  slider.style.setProperty("--value", `${value}%`)
+  const value = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
+  slider.style.setProperty('--value', `${value}%`);
 }
 
 // Update slider fill on input
-const sliders = document.querySelectorAll('input[type="range"]')
+const sliders = document.querySelectorAll('input[type="range"]');
 sliders.forEach((slider) => {
-  updateSliderFill(slider)
-  slider.addEventListener("input", () => {
-    updateSliderFill(slider)
-  })
-})
+  updateSliderFill(slider);
+  slider.addEventListener('input', () => {
+    updateSliderFill(slider);
+  });
+});
 
 function resetBox() {
   // Reset cubeProperties to initial values
-  cubeProperties = { ...initialCubeProperties }
-  dimensions = { ...initialDimensions }
-  numCubes = { ...initialNumCubes }
+  cubeProperties = { ...initialCubeProperties };
+  dimensions = { ...initialDimensions };
+  numCubes = { ...initialNumCubes };
 
   // Update UI elements to reflect initial values in cm
-  cubeWidthInput.value = (cubeProperties.cubeWidth * 100).toFixed(0) // m to cm
-  cubeHeightInput.value = (cubeProperties.cubeHeight * 100).toFixed(0) // m to cm
-  cubeDepthInput.value = (cubeProperties.cubeDepth * 100).toFixed(0) // m to cm
-  cubeThicknessInput.value = (cubeProperties.thickness * 100).toFixed(1) // m to cm
-  cubeWidthValueInput.value = cubeWidthInput.value
-  cubeHeightValueInput.value = cubeHeightInput.value
-  cubeDepthValueInput.value = cubeDepthInput.value
-  cubeThicknessValueInput.value = cubeThicknessInput.value
+  cubeWidthInput.value = (cubeProperties.cubeWidth * 100).toFixed(0); // m to cm
+  cubeHeightInput.value = (cubeProperties.cubeHeight * 100).toFixed(0); // m to cm
+  cubeDepthInput.value = (cubeProperties.cubeDepth * 100).toFixed(0); // m to cm
+  cubeThicknessInput.value = (cubeProperties.thickness * 100).toFixed(1); // m to cm
+  cubeWidthValueInput.value = cubeWidthInput.value;
+  cubeHeightValueInput.value = cubeHeightInput.value;
+  cubeDepthValueInput.value = cubeDepthInput.value;
+  cubeThicknessValueInput.value = cubeThicknessInput.value;
 
-  frontPanelVisibleCheckbox.checked = cubeProperties.frontPanelVisible
-  backPanelVisibleCheckbox.checked = cubeProperties.backPanelVisible
-  shelvesVisibleCheckbox.checked = cubeProperties.showHorizontalPanels
+  frontPanelVisibleCheckbox.checked = cubeProperties.frontPanelVisible;
+  backPanelVisibleCheckbox.checked = cubeProperties.backPanelVisible;
+  shelvesVisibleCheckbox.checked = cubeProperties.showHorizontalPanels;
 
-  numCubesXInput.value = numCubes.numCubesX
-  numCubesYInput.value = numCubes.numCubesY
-  numCubesZInput.value = numCubes.numCubesZ
-  numCubesXValueInput.value = numCubesXInput.value
-  numCubesYValueInput.value = numCubesYInput.value
-  numCubesZValueInput.value = numCubesZInput.value
+  numCubesXInput.value = numCubes.numCubesX;
+  numCubesYInput.value = numCubes.numCubesY;
+  numCubesZInput.value = numCubes.numCubesZ;
+  numCubesXValueInput.value = numCubesXInput.value;
+  numCubesYValueInput.value = numCubesYInput.value;
+  numCubesZValueInput.value = numCubesZInput.value;
 
   // Reset Texture Selection to initial value
   textureSwatches.forEach((swatch) => {
-    if (
-      swatch.getAttribute("data-texture") === cubeProperties.selectedTexture
-    ) {
-      swatch.classList.add("selected")
+    if (swatch.getAttribute('data-texture') === cubeProperties.selectedTexture) {
+      swatch.classList.add('selected');
     } else {
-      swatch.classList.remove("selected")
+      swatch.classList.remove('selected');
     }
-  })
+  });
 
   // Update materials and geometry
-  updateLaminatedMaterial()
-  updateCubeGeometry()
+  updateLaminatedMaterial();
+  updateCubeGeometry();
 }
 
 // Event Listeners for Controls
-resetCameraButton.addEventListener("click", resetCamera)
-resetBoxButton.addEventListener("click", resetBox)
+resetCameraButton.addEventListener('click', resetCamera);
+resetBoxButton.addEventListener('click', resetBox);
 
 // Box Width Slider
-cubeWidthInput.addEventListener("input", () => {
-  const valueCm = parseFloat(cubeWidthInput.value)
-  const valueM = valueCm / 100 // Convert cm to m
-  cubeProperties.cubeWidth = valueM
-  cubeWidthValueInput.value = valueCm.toFixed(0) // Display in cm
-  updateCubeGeometry()
-})
+cubeWidthInput.addEventListener('input', () => {
+  const valueCm = parseFloat(cubeWidthInput.value);
+  const valueM = valueCm / 100; // Convert cm to m
+  cubeProperties.cubeWidth = valueM;
+  cubeWidthValueInput.value = valueCm.toFixed(0); // Display in cm
+  updateCubeGeometry();
+});
 
 // Box Width Numeric Input
-cubeWidthValueInput.addEventListener("input", () => {
-  let valueCm = parseFloat(cubeWidthValueInput.value)
-  if (isNaN(valueCm)) valueCm = parseFloat(cubeWidthInput.min)
-  valueCm = Math.max(
-    parseFloat(cubeWidthInput.min),
-    Math.min(parseFloat(cubeWidthInput.max), valueCm),
-  )
-  cubeWidthValueInput.value = valueCm.toFixed(0)
-  cubeWidthInput.value = valueCm
-  cubeProperties.cubeWidth = valueCm / 100 // Convert cm to m
-  updateCubeGeometry()
-})
+cubeWidthValueInput.addEventListener('input', () => {
+  let valueCm = parseFloat(cubeWidthValueInput.value);
+  if (isNaN(valueCm)) valueCm = parseFloat(cubeWidthInput.min);
+  valueCm = Math.max(parseFloat(cubeWidthInput.min), Math.min(parseFloat(cubeWidthInput.max), valueCm));
+  cubeWidthValueInput.value = valueCm.toFixed(0);
+  cubeWidthInput.value = valueCm;
+  cubeProperties.cubeWidth = valueCm / 100; // Convert cm to m
+  updateCubeGeometry();
+});
 
 // Box Height Slider
-cubeHeightInput.addEventListener("input", () => {
-  const valueCm = parseFloat(cubeHeightInput.value)
-  const valueM = valueCm / 100 // Convert cm to m
-  cubeProperties.cubeHeight = valueM
-  cubeHeightValueInput.value = valueCm.toFixed(0) // Display in cm
-  updateCubeGeometry()
-})
+cubeHeightInput.addEventListener('input', () => {
+  const valueCm = parseFloat(cubeHeightInput.value);
+  const valueM = valueCm / 100; // Convert cm to m
+  cubeProperties.cubeHeight = valueM;
+  cubeHeightValueInput.value = valueCm.toFixed(0); // Display in cm
+  updateCubeGeometry();
+});
 
 // Box Height Numeric Input
-cubeHeightValueInput.addEventListener("input", () => {
-  let valueCm = parseFloat(cubeHeightValueInput.value)
-  if (isNaN(valueCm)) valueCm = parseFloat(cubeHeightInput.min)
-  valueCm = Math.max(
-    parseFloat(cubeHeightInput.min),
-    Math.min(parseFloat(cubeHeightInput.max), valueCm),
-  )
-  cubeHeightValueInput.value = valueCm.toFixed(0)
-  cubeHeightInput.value = valueCm
-  cubeProperties.cubeHeight = valueCm / 100 // Convert cm to m
-  updateCubeGeometry()
-})
+cubeHeightValueInput.addEventListener('input', () => {
+  let valueCm = parseFloat(cubeHeightValueInput.value);
+  if (isNaN(valueCm)) valueCm = parseFloat(cubeHeightInput.min);
+  valueCm = Math.max(parseFloat(cubeHeightInput.min), Math.min(parseFloat(cubeHeightInput.max), valueCm));
+  cubeHeightValueInput.value = valueCm.toFixed(0);
+  cubeHeightInput.value = valueCm;
+  cubeProperties.cubeHeight = valueCm / 100; // Convert cm to m
+  updateCubeGeometry();
+});
 
 // Box Depth Slider
-cubeDepthInput.addEventListener("input", () => {
-  const valueCm = parseFloat(cubeDepthInput.value)
-  const valueM = valueCm / 100 // Convert cm to m
-  cubeProperties.cubeDepth = valueM
-  cubeDepthValueInput.value = valueCm.toFixed(0) // Display in cm
-  updateCubeGeometry()
-})
+cubeDepthInput.addEventListener('input', () => {
+  const valueCm = parseFloat(cubeDepthInput.value);
+  const valueM = valueCm / 100; // Convert cm to m
+  cubeProperties.cubeDepth = valueM;
+  cubeDepthValueInput.value = valueCm.toFixed(0); // Display in cm
+  updateCubeGeometry();
+});
 
 // Box Depth Numeric Input
-cubeDepthValueInput.addEventListener("input", () => {
-  let valueCm = parseFloat(cubeDepthValueInput.value)
-  if (isNaN(valueCm)) valueCm = parseFloat(cubeDepthInput.min)
-  valueCm = Math.max(
-    parseFloat(cubeDepthInput.min),
-    Math.min(parseFloat(cubeDepthInput.max), valueCm),
-  )
-  cubeDepthValueInput.value = valueCm.toFixed(0)
-  cubeDepthInput.value = valueCm
-  cubeProperties.cubeDepth = valueCm / 100 // Convert cm to m
-  updateCubeGeometry()
-})
+cubeDepthValueInput.addEventListener('input', () => {
+  let valueCm = parseFloat(cubeDepthValueInput.value);
+  if (isNaN(valueCm)) valueCm = parseFloat(cubeDepthInput.min);
+  valueCm = Math.max(parseFloat(cubeDepthInput.min), Math.min(parseFloat(cubeDepthInput.max), valueCm));
+  cubeDepthValueInput.value = valueCm.toFixed(0);
+  cubeDepthInput.value = valueCm;
+  cubeProperties.cubeDepth = valueCm / 100; // Convert cm to m
+  updateCubeGeometry();
+});
 
 // Cube Thickness
-cubeThicknessInput.addEventListener("input", () => {
-  const thicknessCm = parseFloat(cubeThicknessInput.value)
-  const thicknessM = closestAllowedThickness(thicknessCm) // Convert to meters
-  cubeProperties.thickness = thicknessM
+cubeThicknessInput.addEventListener('input', () => {
+  const thicknessCm = parseFloat(cubeThicknessInput.value);
+  const thicknessM = closestAllowedThickness(thicknessCm); // Convert to meters
+  cubeProperties.thickness = thicknessM;
 
   // Update the input value to the closest allowed value in cm
-  const closestCm = closestAllowedThickness(thicknessCm, false)
-  cubeThicknessInput.value = closestCm.toFixed(1)
-  cubeThicknessValueInput.value = closestCm.toFixed(1)
+  const closestCm = closestAllowedThickness(thicknessCm, false);
+  cubeThicknessInput.value = closestCm.toFixed(1);
+  cubeThicknessValueInput.value = closestCm.toFixed(1);
 
-  updateCubeGeometry()
-})
+  updateCubeGeometry();
+});
 
-cubeThicknessValueInput.addEventListener("input", () => {
-  let thicknessCm = parseFloat(cubeThicknessValueInput.value)
-  if (isNaN(thicknessCm)) thicknessCm = parseFloat(cubeThicknessInput.min)
-  thicknessCm = Math.max(
-    parseFloat(cubeThicknessInput.min),
-    Math.min(parseFloat(cubeThicknessInput.max), thicknessCm),
-  )
-  cubeThicknessValueInput.value = thicknessCm.toFixed(1)
-  cubeThicknessInput.value = thicknessCm
+cubeThicknessValueInput.addEventListener('input', () => {
+  let thicknessCm = parseFloat(cubeThicknessValueInput.value);
+  if (isNaN(thicknessCm)) thicknessCm = parseFloat(cubeThicknessInput.min);
+  thicknessCm = Math.max(parseFloat(cubeThicknessInput.min), Math.min(parseFloat(cubeThicknessInput.max), thicknessCm));
+  cubeThicknessValueInput.value = thicknessCm.toFixed(1);
+  cubeThicknessInput.value = thicknessCm;
 
-  const thicknessM = closestAllowedThickness(thicknessCm) // Convert to meters
-  cubeProperties.thickness = thicknessM
+  const thicknessM = closestAllowedThickness(thicknessCm); // Convert to meters
+  cubeProperties.thickness = thicknessM;
 
-  updateCubeGeometry()
-})
+  updateCubeGeometry();
+});
 
 // Visibility Toggles
-frontPanelVisibleCheckbox.addEventListener("change", () => {
-  cubeProperties.frontPanelVisible = frontPanelVisibleCheckbox.checked
-  updateCubeGeometry()
-})
-backPanelVisibleCheckbox.addEventListener("change", () => {
-  cubeProperties.backPanelVisible = backPanelVisibleCheckbox.checked
-  updateCubeGeometry()
-})
-shelvesVisibleCheckbox.addEventListener("change", () => {
-  cubeProperties.showHorizontalPanels = shelvesVisibleCheckbox.checked
-  updateCubeGeometry()
-})
+frontPanelVisibleCheckbox.addEventListener('change', () => {
+  cubeProperties.frontPanelVisible = frontPanelVisibleCheckbox.checked;
+  updateCubeGeometry();
+});
+backPanelVisibleCheckbox.addEventListener('change', () => {
+  cubeProperties.backPanelVisible = backPanelVisibleCheckbox.checked;
+  updateCubeGeometry();
+});
+shelvesVisibleCheckbox.addEventListener('change', () => {
+  cubeProperties.showHorizontalPanels = shelvesVisibleCheckbox.checked;
+  updateCubeGeometry();
+});
 
 // Repetition Sliders and Numeric Inputs
-numCubesXInput.addEventListener("input", () => {
-  const value = parseInt(numCubesXInput.value, 10)
-  numCubes.numCubesX = value
-  numCubesXValueInput.value = value
-  updateCubeGeometry()
-})
+numCubesXInput.addEventListener('input', () => {
+  const value = parseInt(numCubesXInput.value, 10);
+  numCubes.numCubesX = value;
+  numCubesXValueInput.value = value;
+  updateCubeGeometry();
+});
 
-numCubesXValueInput.addEventListener("input", () => {
-  let value = parseInt(numCubesXValueInput.value, 10)
-  if (isNaN(value)) value = parseInt(numCubesXInput.min, 10)
-  value = Math.max(
-    parseInt(numCubesXInput.min, 10),
-    Math.min(parseInt(numCubesXInput.max, 10), value),
-  )
-  numCubesXValueInput.value = value
-  numCubesXInput.value = value
-  numCubes.numCubesX = value
-  updateCubeGeometry()
-})
+numCubesXValueInput.addEventListener('input', () => {
+  let value = parseInt(numCubesXValueInput.value, 10);
+  if (isNaN(value)) value = parseInt(numCubesXInput.min, 10);
+  value = Math.max(parseInt(numCubesXInput.min, 10), Math.min(parseInt(numCubesXInput.max, 10), value));
+  numCubesXValueInput.value = value;
+  numCubesXInput.value = value;
+  numCubes.numCubesX = value;
+  updateCubeGeometry();
+});
 
 // numCubesY
-numCubesYInput.addEventListener("input", () => {
-  const value = parseInt(numCubesYInput.value, 10)
-  numCubes.numCubesY = value
-  numCubesYValueInput.value = value
-  updateCubeGeometry()
-})
+numCubesYInput.addEventListener('input', () => {
+  const value = parseInt(numCubesYInput.value, 10);
+  numCubes.numCubesY = value;
+  numCubesYValueInput.value = value;
+  updateCubeGeometry();
+});
 
-numCubesYValueInput.addEventListener("input", () => {
-  let value = parseInt(numCubesYValueInput.value, 10)
-  if (isNaN(value)) value = parseInt(numCubesYInput.min, 10)
-  value = Math.max(
-    parseInt(numCubesYInput.min, 10),
-    Math.min(parseInt(numCubesYInput.max, 10), value),
-  )
-  numCubesYValueInput.value = value
-  numCubesYInput.value = value
-  numCubes.numCubesY = value
-  updateCubeGeometry()
-})
+numCubesYValueInput.addEventListener('input', () => {
+  let value = parseInt(numCubesYValueInput.value, 10);
+  if (isNaN(value)) value = parseInt(numCubesYInput.min, 10);
+  value = Math.max(parseInt(numCubesYInput.min, 10), Math.min(parseInt(numCubesYInput.max, 10), value));
+  numCubesYValueInput.value = value;
+  numCubesYInput.value = value;
+  numCubes.numCubesY = value;
+  updateCubeGeometry();
+});
 
 // numCubesZ
-numCubesZInput.addEventListener("input", () => {
-  const value = parseInt(numCubesZInput.value, 10)
-  numCubes.numCubesZ = value
-  numCubesZValueInput.value = value
-  updateCubeGeometry()
-})
+numCubesZInput.addEventListener('input', () => {
+  const value = parseInt(numCubesZInput.value, 10);
+  numCubes.numCubesZ = value;
+  numCubesZValueInput.value = value;
+  updateCubeGeometry();
+});
 
-numCubesZValueInput.addEventListener("input", () => {
-  let value = parseInt(numCubesZValueInput.value, 10)
-  if (isNaN(value)) value = parseInt(numCubesZInput.min, 10)
-  value = Math.max(
-    parseInt(numCubesZInput.min, 10),
-    Math.min(parseInt(numCubesZInput.max, 10), value),
-  )
-  numCubesZValueInput.value = value
-  numCubesZInput.value = value
-  numCubes.numCubesZ = value
-  updateCubeGeometry()
-})
+numCubesZValueInput.addEventListener('input', () => {
+  let value = parseInt(numCubesZValueInput.value, 10);
+  if (isNaN(value)) value = parseInt(numCubesZInput.min, 10);
+  value = Math.max(parseInt(numCubesZInput.min, 10), Math.min(parseInt(numCubesZInput.max, 10), value));
+  numCubesZValueInput.value = value;
+  numCubesZInput.value = value;
+  numCubes.numCubesZ = value;
+  updateCubeGeometry();
+});
 
 // Texture Swatches
 textureSwatches.forEach((swatch) => {
-  swatch.addEventListener("click", () => {
+  swatch.addEventListener('click', () => {
     // Remove 'selected' class from all swatches
-    textureSwatches.forEach((s) => s.classList.remove("selected"))
+    textureSwatches.forEach((s) => s.classList.remove('selected'));
 
     // Add 'selected' class to clicked swatch
-    swatch.classList.add("selected")
+    swatch.classList.add('selected');
 
     // Update the selected texture
-    cubeProperties.selectedTexture = swatch.getAttribute("data-texture")
-    updateLaminatedMaterial()
-  })
-})
+    cubeProperties.selectedTexture = swatch.getAttribute('data-texture');
+    updateLaminatedMaterial();
+  });
+});
 
 // Add event listeners to each control-section header for collapsing
-const controlSectionHeaders = document.querySelectorAll(".control-section h3")
+const controlSectionHeaders = document.querySelectorAll('.control-section h3');
 
 controlSectionHeaders.forEach((header) => {
-  header.addEventListener("click", () => {
-    const controlSection = header.parentElement
-    controlSection.classList.toggle("collapsed")
-  })
-})
+  header.addEventListener('click', () => {
+    const controlSection = header.parentElement;
+    controlSection.classList.toggle('collapsed');
+  });
+});
 
 // Ensure the initial control values match the properties
 // (Set initial values for sliders and displays)
-cubeWidthInput.value = (cubeProperties.cubeWidth * 100).toFixed(0) // m to cm
-cubeHeightInput.value = (cubeProperties.cubeHeight * 100).toFixed(0) // m to cm
-cubeDepthInput.value = (cubeProperties.cubeDepth * 100).toFixed(0) // m to cm
-cubeThicknessInput.value = (cubeProperties.thickness * 100).toFixed(1) // m to cm
-cubeWidthValueInput.value = cubeWidthInput.value
-cubeHeightValueInput.value = cubeHeightInput.value
-cubeDepthValueInput.value = cubeDepthInput.value
-cubeThicknessValueInput.value = cubeThicknessInput.value
+cubeWidthInput.value = (cubeProperties.cubeWidth * 100).toFixed(0); // m to cm
+cubeHeightInput.value = (cubeProperties.cubeHeight * 100).toFixed(0); // m to cm
+cubeDepthInput.value = (cubeProperties.cubeDepth * 100).toFixed(0); // m to cm
+cubeThicknessInput.value = (cubeProperties.thickness * 100).toFixed(1); // m to cm
+cubeWidthValueInput.value = cubeWidthInput.value;
+cubeHeightValueInput.value = cubeHeightInput.value;
+cubeDepthValueInput.value = cubeDepthInput.value;
+cubeThicknessValueInput.value = cubeThicknessInput.value;
 
-frontPanelVisibleCheckbox.checked = cubeProperties.frontPanelVisible
-backPanelVisibleCheckbox.checked = cubeProperties.backPanelVisible
-shelvesVisibleCheckbox.checked = cubeProperties.showHorizontalPanels
+frontPanelVisibleCheckbox.checked = cubeProperties.frontPanelVisible;
+backPanelVisibleCheckbox.checked = cubeProperties.backPanelVisible;
+shelvesVisibleCheckbox.checked = cubeProperties.showHorizontalPanels;
 
-numCubesXInput.value = numCubes.numCubesX
-numCubesYInput.value = numCubes.numCubesY
-numCubesZInput.value = numCubes.numCubesZ
-numCubesXValueInput.value = numCubesXInput.value
-numCubesYValueInput.value = numCubesYInput.value
-numCubesZValueInput.value = numCubesZInput.value
+numCubesXInput.value = numCubes.numCubesX;
+numCubesYInput.value = numCubes.numCubesY;
+numCubesZInput.value = numCubes.numCubesZ;
+numCubesXValueInput.value = numCubesXInput.value;
+numCubesYValueInput.value = numCubesYInput.value;
+numCubesZValueInput.value = numCubesZInput.value;
 
 // Listen to window resize to adjust Control Panel state if needed
-window.addEventListener("resize", initializeControlPanelState)
+window.addEventListener('resize', initializeControlPanelState);
