@@ -652,95 +652,6 @@ function initializeControlPanelState() {
   }
 }
 
-// Touch Event Handling for Controls
-function addTouchHandlersToControls() {
-  const controlsElements = document.querySelectorAll(
-    '#control-panel input[type="range"], #control-panel input[type="checkbox"]'
-  );
-
-  controlsElements.forEach((control) => {
-    let touchStartY = 0;
-    let touchStartX = 0;
-    let touchMoved = false;
-
-    control.addEventListener('touchstart', (e) => {
-      touchMoved = false;
-      touchStartY = e.touches[0].clientY;
-      touchStartX = e.touches[0].clientX;
-    });
-
-    control.addEventListener('touchmove', (e) => {
-      const touchY = e.touches[0].clientY;
-      const touchX = e.touches[0].clientX;
-      const deltaY = Math.abs(touchY - touchStartY);
-      const deltaX = Math.abs(touchX - touchStartX);
-
-      if (deltaY > 10) {
-        // Consider it a scroll if vertical movement exceeds 10 pixels
-        touchMoved = true;
-        // Allow the scroll to happen
-      } else {
-        // Prevent interaction if it's not a scroll
-        e.preventDefault();
-      }
-    });
-
-    control.addEventListener('touchend', (e) => {
-      if (touchMoved) {
-        // It was a scroll, do nothing
-      } else {
-        // It was a tap or slight movement, allow interaction
-        // For checkboxes, toggle the checked state
-        if (control.type === 'checkbox') {
-          control.checked = !control.checked;
-          // Trigger the change event
-          const event = new Event('change');
-          control.dispatchEvent(event);
-        }
-        // For sliders, focus on the control to allow adjustment
-        else if (control.type === 'range') {
-          control.focus();
-        }
-      }
-    });
-  });
-}
-
-// Touch Event Handling for Canvas
-function addTouchHandlersToCanvas() {
-  let touchStartY = 0;
-  let touchStartX = 0;
-  let touchMoved = false;
-
-  renderer.domElement.addEventListener('touchstart', (e) => {
-    touchMoved = false;
-    touchStartY = e.touches[0].clientY;
-    touchStartX = e.touches[0].clientX;
-  });
-
-  renderer.domElement.addEventListener('touchmove', (e) => {
-    const touchY = e.touches[0].clientY;
-    const touchX = e.touches[0].clientX;
-    const deltaY = Math.abs(touchY - touchStartY);
-    const deltaX = Math.abs(touchX - touchStartX);
-
-    if (deltaY > 10) {
-      // Consider it a scroll
-      touchMoved = true;
-      // Disable OrbitControls temporarily
-      controls.enabled = false;
-    } else {
-      // Not a scroll, allow OrbitControls
-      controls.enabled = true;
-    }
-  });
-
-  renderer.domElement.addEventListener('touchend', (e) => {
-    // Re-enable OrbitControls after touch ends
-    controls.enabled = true;
-  });
-}
-
 window.addEventListener('load', () => {
   setTimeout(() => {
     const overlay = document.getElementById('overlay-message');
@@ -759,18 +670,17 @@ window.addEventListener('load', () => {
   // Automatically reset camera on launch
   resetCamera();
 
-  // Add the mobile interaction handlers
-  addTouchHandlersToControls();
-  addTouchHandlersToCanvas();
+  // Initialize custom sliders
+  initializeCustomSliders();
 });
 
 // Control Elements
 const resetCameraButton = document.getElementById('reset-camera');
 const resetBoxButton = document.getElementById('reset-box');
-const cubeWidthInput = document.getElementById('cube-width');
-const cubeHeightInput = document.getElementById('cube-height');
-const cubeDepthInput = document.getElementById('cube-depth');
-const cubeThicknessInput = document.getElementById('cube-thickness');
+const cubeWidthSlider = document.getElementById('cube-width-slider');
+const cubeHeightSlider = document.getElementById('cube-height-slider');
+const cubeDepthSlider = document.getElementById('cube-depth-slider');
+const cubeThicknessSlider = document.getElementById('cube-thickness-slider');
 const cubeWidthValueInput = document.getElementById('cube-width-value');
 const cubeHeightValueInput = document.getElementById('cube-height-value');
 const cubeDepthValueInput = document.getElementById('cube-depth-value');
@@ -778,28 +688,114 @@ const cubeThicknessValueInput = document.getElementById('cube-thickness-value');
 const frontPanelVisibleCheckbox = document.getElementById('front-panel-visible');
 const backPanelVisibleCheckbox = document.getElementById('back-panel-visible');
 const shelvesVisibleCheckbox = document.getElementById('shelves-visible');
-const numCubesXInput = document.getElementById('num-cubes-x');
-const numCubesYInput = document.getElementById('num-cubes-y');
-const numCubesZInput = document.getElementById('num-cubes-z');
+const numCubesXSlider = document.getElementById('num-cubes-x-slider');
+const numCubesYSlider = document.getElementById('num-cubes-y-slider');
+const numCubesZSlider = document.getElementById('num-cubes-z-slider');
 const numCubesXValueInput = document.getElementById('num-cubes-x-value');
 const numCubesYValueInput = document.getElementById('num-cubes-y-value');
 const numCubesZValueInput = document.getElementById('num-cubes-z-value');
 const textureSwatches = document.querySelectorAll('.texture-swatch');
 
-// Function to update the slider fill
-function updateSliderFill(slider) {
-  const value = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
-  slider.style.setProperty('--value', `${value}%`);
+// Function to initialize custom sliders
+function initializeCustomSliders() {
+  const sliders = document.querySelectorAll('.custom-slider');
+  sliders.forEach(slider => {
+    let thumb = slider.querySelector('.thumb');
+
+    // If thumb doesn't exist, create it
+    if (!thumb) {
+      thumb = document.createElement('div');
+      thumb.classList.add('thumb');
+      slider.appendChild(thumb);
+    }
+
+    // Read data attributes for min, max, step, value
+    const min = parseFloat(slider.getAttribute('data-min'));
+    const max = parseFloat(slider.getAttribute('data-max'));
+    const step = parseFloat(slider.getAttribute('data-step'));
+    let value = parseFloat(slider.getAttribute('data-value'));
+
+    const inputId = slider.id.replace('-slider', '-value');
+    const input = document.getElementById(inputId);
+
+    function updateThumbPosition() {
+      const rect = slider.getBoundingClientRect();
+      const sliderWidth = rect.width;
+      const percentage = (value - min) / (max - min);
+      const thumbX = percentage * sliderWidth;
+      thumb.style.left = `${thumbX}px`;
+
+      // Update the slider fill
+      slider.style.background = `linear-gradient(to right, red 0%, red ${percentage * 100}%, #ccc ${percentage * 100}%, #ccc 100%)`;
+    }
+
+    updateThumbPosition();
+
+    let isDragging = false;
+
+    thumb.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+      e.preventDefault();
+    });
+
+    function onMouseMove(e) {
+      if (!isDragging) return;
+
+      const rect = slider.getBoundingClientRect();
+      let x = e.clientX - rect.left;
+      x = Math.max(0, Math.min(x, rect.width)); // Clamp x between 0 and slider width
+
+      const percentage = x / rect.width;
+      const newValue = min + percentage * (max - min);
+      value = Math.round(newValue / step) * step; // Adjust for step
+      value = Math.max(min, Math.min(value, max)); // Clamp value between min and max
+
+      // Update the thumb position and fill
+      updateThumbPosition();
+
+      // Update the associated input element
+      input.value = value.toFixed(step < 1 ? 1 : 0); // Adjust decimal places
+
+      // Trigger the input event on the input element
+      const event = new Event('input');
+      input.dispatchEvent(event);
+    }
+
+    function onMouseUp(e) {
+      isDragging = false;
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    }
+
+    // Prevent clicks on the slider track from changing the value
+    slider.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    // Update the thumb position when the input value changes
+    input.addEventListener('input', () => {
+      value = parseFloat(input.value);
+      value = Math.max(min, Math.min(value, max));
+      slider.setAttribute('data-value', value);
+      updateThumbPosition();
+    });
+  });
 }
 
-// Update slider fill on input
-const sliders = document.querySelectorAll('input[type="range"]');
-sliders.forEach((slider) => {
-  updateSliderFill(slider);
-  slider.addEventListener('input', () => {
-    updateSliderFill(slider);
-  });
-});
+// Function to debounce resetCamera
+function debounce(func, delay) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
+  };
+}
+
+const debouncedResetCamera = debounce(resetCamera, 1000);
 
 function resetBox() {
   // Reset cubeProperties to initial values
@@ -808,25 +804,36 @@ function resetBox() {
   numCubes = { ...initialNumCubes };
 
   // Update UI elements to reflect initial values in cm
-  cubeWidthInput.value = (cubeProperties.cubeWidth * 100).toFixed(0); // m to cm
-  cubeHeightInput.value = (cubeProperties.cubeHeight * 100).toFixed(0); // m to cm
-  cubeDepthInput.value = (cubeProperties.cubeDepth * 100).toFixed(0); // m to cm
-  cubeThicknessInput.value = (cubeProperties.thickness * 100).toFixed(1); // m to cm
-  cubeWidthValueInput.value = cubeWidthInput.value;
-  cubeHeightValueInput.value = cubeHeightInput.value;
-  cubeDepthValueInput.value = cubeDepthInput.value;
-  cubeThicknessValueInput.value = cubeThicknessInput.value;
+  cubeWidthSlider.setAttribute('data-value', (cubeProperties.cubeWidth * 100).toFixed(0)); // m to cm
+  cubeHeightSlider.setAttribute('data-value', (cubeProperties.cubeHeight * 100).toFixed(0)); // m to cm
+  cubeDepthSlider.setAttribute('data-value', (cubeProperties.cubeDepth * 100).toFixed(0)); // m to cm
+  cubeThicknessSlider.setAttribute('data-value', (cubeProperties.thickness * 100).toFixed(1)); // m to cm
+  cubeWidthValueInput.value = (cubeProperties.cubeWidth * 100).toFixed(0);
+  cubeHeightValueInput.value = (cubeProperties.cubeHeight * 100).toFixed(0);
+  cubeDepthValueInput.value = (cubeProperties.cubeDepth * 100).toFixed(0);
+  cubeThicknessValueInput.value = (cubeProperties.thickness * 100).toFixed(1);
+
+  // Trigger input events to update thumb positions
+  cubeWidthValueInput.dispatchEvent(new Event('input'));
+  cubeHeightValueInput.dispatchEvent(new Event('input'));
+  cubeDepthValueInput.dispatchEvent(new Event('input'));
+  cubeThicknessValueInput.dispatchEvent(new Event('input'));
 
   frontPanelVisibleCheckbox.checked = cubeProperties.frontPanelVisible;
   backPanelVisibleCheckbox.checked = cubeProperties.backPanelVisible;
   shelvesVisibleCheckbox.checked = cubeProperties.showHorizontalPanels;
 
-  numCubesXInput.value = numCubes.numCubesX;
-  numCubesYInput.value = numCubes.numCubesY;
-  numCubesZInput.value = numCubes.numCubesZ;
-  numCubesXValueInput.value = numCubesXInput.value;
-  numCubesYValueInput.value = numCubesYInput.value;
-  numCubesZValueInput.value = numCubesZInput.value;
+  numCubesXSlider.setAttribute('data-value', numCubes.numCubesX);
+  numCubesYSlider.setAttribute('data-value', numCubes.numCubesY);
+  numCubesZSlider.setAttribute('data-value', numCubes.numCubesZ);
+  numCubesXValueInput.value = numCubes.numCubesX;
+  numCubesYValueInput.value = numCubes.numCubesY;
+  numCubesZValueInput.value = numCubes.numCubesZ;
+
+  // Trigger input events to update thumb positions
+  numCubesXValueInput.dispatchEvent(new Event('input'));
+  numCubesYValueInput.dispatchEvent(new Event('input'));
+  numCubesZValueInput.dispatchEvent(new Event('input'));
 
   // Reset Texture Selection to initial value
   textureSwatches.forEach((swatch) => {
@@ -840,166 +847,84 @@ function resetBox() {
   // Update materials and geometry
   updateLaminatedMaterial();
   updateCubeGeometry();
+
+  // Remove the call to initializeCustomSliders()
+  // initializeCustomSliders(); // Remove this line to prevent adding duplicate thumbs
 }
 
 // Event Listeners for Controls
 resetCameraButton.addEventListener('click', resetCamera);
 resetBoxButton.addEventListener('click', resetBox);
 
-// Box Width Slider
-cubeWidthInput.addEventListener('input', () => {
-  const valueCm = parseFloat(cubeWidthInput.value);
-  const valueM = valueCm / 100; // Convert cm to m
-  cubeProperties.cubeWidth = valueM;
-  cubeWidthValueInput.value = valueCm.toFixed(0); // Display in cm
-  updateCubeGeometry();
-});
+// Size (cm) Controls
 
-// Box Width Numeric Input
-cubeWidthValueInput.addEventListener('input', () => {
-  let valueCm = parseFloat(cubeWidthValueInput.value);
-  if (isNaN(valueCm)) valueCm = parseFloat(cubeWidthInput.min);
-  valueCm = Math.max(parseFloat(cubeWidthInput.min), Math.min(parseFloat(cubeWidthInput.max), valueCm));
-  cubeWidthValueInput.value = valueCm.toFixed(0);
-  cubeWidthInput.value = valueCm;
-  cubeProperties.cubeWidth = valueCm / 100; // Convert cm to m
-  updateCubeGeometry();
-});
+// Helper function to set up value inputs
+function setupValueInput(input, propertyName, isThickness = false) {
+  input.addEventListener('input', () => {
+    let valueCm = parseFloat(input.value);
+    if (isNaN(valueCm)) valueCm = parseFloat(input.min);
+    const min = parseFloat(input.min);
+    const max = parseFloat(input.max);
+    valueCm = Math.max(min, Math.min(max, valueCm));
+    input.value = valueCm.toFixed(isThickness ? 1 : 0);
+    const valueM = isThickness ? closestAllowedThickness(valueCm) : valueCm / 100;
+    cubeProperties[propertyName] = valueM;
+    updateCubeGeometry();
+    debouncedResetCamera();
+  });
+}
 
-// Box Height Slider
-cubeHeightInput.addEventListener('input', () => {
-  const valueCm = parseFloat(cubeHeightInput.value);
-  const valueM = valueCm / 100; // Convert cm to m
-  cubeProperties.cubeHeight = valueM;
-  cubeHeightValueInput.value = valueCm.toFixed(0); // Display in cm
-  updateCubeGeometry();
-});
+// Width
+setupValueInput(cubeWidthValueInput, 'cubeWidth');
 
-// Box Height Numeric Input
-cubeHeightValueInput.addEventListener('input', () => {
-  let valueCm = parseFloat(cubeHeightValueInput.value);
-  if (isNaN(valueCm)) valueCm = parseFloat(cubeHeightInput.min);
-  valueCm = Math.max(parseFloat(cubeHeightInput.min), Math.min(parseFloat(cubeHeightInput.max), valueCm));
-  cubeHeightValueInput.value = valueCm.toFixed(0);
-  cubeHeightInput.value = valueCm;
-  cubeProperties.cubeHeight = valueCm / 100; // Convert cm to m
-  updateCubeGeometry();
-});
+// Height
+setupValueInput(cubeHeightValueInput, 'cubeHeight');
 
-// Box Depth Slider
-cubeDepthInput.addEventListener('input', () => {
-  const valueCm = parseFloat(cubeDepthInput.value);
-  const valueM = valueCm / 100; // Convert cm to m
-  cubeProperties.cubeDepth = valueM;
-  cubeDepthValueInput.value = valueCm.toFixed(0); // Display in cm
-  updateCubeGeometry();
-});
+// Depth
+setupValueInput(cubeDepthValueInput, 'cubeDepth');
 
-// Box Depth Numeric Input
-cubeDepthValueInput.addEventListener('input', () => {
-  let valueCm = parseFloat(cubeDepthValueInput.value);
-  if (isNaN(valueCm)) valueCm = parseFloat(cubeDepthInput.min);
-  valueCm = Math.max(parseFloat(cubeDepthInput.min), Math.min(parseFloat(cubeDepthInput.max), valueCm));
-  cubeDepthValueInput.value = valueCm.toFixed(0);
-  cubeDepthInput.value = valueCm;
-  cubeProperties.cubeDepth = valueCm / 100; // Convert cm to m
-  updateCubeGeometry();
-});
-
-// Cube Thickness
-cubeThicknessInput.addEventListener('input', () => {
-  const thicknessCm = parseFloat(cubeThicknessInput.value);
-  const thicknessM = closestAllowedThickness(thicknessCm); // Convert to meters
-  cubeProperties.thickness = thicknessM;
-
-  // Update the input value to the closest allowed value in cm
-  const closestCm = closestAllowedThickness(thicknessCm, false);
-  cubeThicknessInput.value = closestCm.toFixed(1);
-  cubeThicknessValueInput.value = closestCm.toFixed(1);
-
-  updateCubeGeometry();
-});
-
-cubeThicknessValueInput.addEventListener('input', () => {
-  let thicknessCm = parseFloat(cubeThicknessValueInput.value);
-  if (isNaN(thicknessCm)) thicknessCm = parseFloat(cubeThicknessInput.min);
-  thicknessCm = Math.max(parseFloat(cubeThicknessInput.min), Math.min(parseFloat(cubeThicknessInput.max), thicknessCm));
-  cubeThicknessValueInput.value = thicknessCm.toFixed(1);
-  cubeThicknessInput.value = thicknessCm;
-
-  const thicknessM = closestAllowedThickness(thicknessCm); // Convert to meters
-  cubeProperties.thickness = thicknessM;
-
-  updateCubeGeometry();
-});
+// Thickness
+setupValueInput(cubeThicknessValueInput, 'thickness', true);
 
 // Visibility Toggles
 frontPanelVisibleCheckbox.addEventListener('change', () => {
   cubeProperties.frontPanelVisible = frontPanelVisibleCheckbox.checked;
   updateCubeGeometry();
 });
+
 backPanelVisibleCheckbox.addEventListener('change', () => {
   cubeProperties.backPanelVisible = backPanelVisibleCheckbox.checked;
   updateCubeGeometry();
 });
+
 shelvesVisibleCheckbox.addEventListener('change', () => {
   cubeProperties.showHorizontalPanels = shelvesVisibleCheckbox.checked;
   updateCubeGeometry();
 });
 
-// Repetition Sliders and Numeric Inputs
-numCubesXInput.addEventListener('input', () => {
-  const value = parseInt(numCubesXInput.value, 10);
-  numCubes.numCubesX = value;
-  numCubesXValueInput.value = value;
-  updateCubeGeometry();
-});
+// Repetition Controls
+function setupRepetitionInput(input, propertyName) {
+  input.addEventListener('input', () => {
+    let value = parseInt(input.value, 10);
+    if (isNaN(value)) value = parseInt(input.min, 10);
+    const min = parseInt(input.min, 10);
+    const max = parseInt(input.max, 10);
+    value = Math.max(min, Math.min(max, value));
+    input.value = value;
+    numCubes[propertyName] = value;
+    updateCubeGeometry();
+    debouncedResetCamera();
+  });
+}
 
-numCubesXValueInput.addEventListener('input', () => {
-  let value = parseInt(numCubesXValueInput.value, 10);
-  if (isNaN(value)) value = parseInt(numCubesXInput.min, 10);
-  value = Math.max(parseInt(numCubesXInput.min, 10), Math.min(parseInt(numCubesXInput.max, 10), value));
-  numCubesXValueInput.value = value;
-  numCubesXInput.value = value;
-  numCubes.numCubesX = value;
-  updateCubeGeometry();
-});
+// numCubesX
+setupRepetitionInput(numCubesXValueInput, 'numCubesX');
 
 // numCubesY
-numCubesYInput.addEventListener('input', () => {
-  const value = parseInt(numCubesYInput.value, 10);
-  numCubes.numCubesY = value;
-  numCubesYValueInput.value = value;
-  updateCubeGeometry();
-});
-
-numCubesYValueInput.addEventListener('input', () => {
-  let value = parseInt(numCubesYValueInput.value, 10);
-  if (isNaN(value)) value = parseInt(numCubesYInput.min, 10);
-  value = Math.max(parseInt(numCubesYInput.min, 10), Math.min(parseInt(numCubesYInput.max, 10), value));
-  numCubesYValueInput.value = value;
-  numCubesYInput.value = value;
-  numCubes.numCubesY = value;
-  updateCubeGeometry();
-});
+setupRepetitionInput(numCubesYValueInput, 'numCubesY');
 
 // numCubesZ
-numCubesZInput.addEventListener('input', () => {
-  const value = parseInt(numCubesZInput.value, 10);
-  numCubes.numCubesZ = value;
-  numCubesZValueInput.value = value;
-  updateCubeGeometry();
-});
-
-numCubesZValueInput.addEventListener('input', () => {
-  let value = parseInt(numCubesZValueInput.value, 10);
-  if (isNaN(value)) value = parseInt(numCubesZInput.min, 10);
-  value = Math.max(parseInt(numCubesZInput.min, 10), Math.min(parseInt(numCubesZInput.max, 10), value));
-  numCubesZValueInput.value = value;
-  numCubesZInput.value = value;
-  numCubes.numCubesZ = value;
-  updateCubeGeometry();
-});
+setupRepetitionInput(numCubesZValueInput, 'numCubesZ');
 
 // Texture Swatches
 textureSwatches.forEach((swatch) => {
@@ -1027,26 +952,18 @@ controlSectionHeaders.forEach((header) => {
 });
 
 // Ensure the initial control values match the properties
-// (Set initial values for sliders and displays)
-cubeWidthInput.value = (cubeProperties.cubeWidth * 100).toFixed(0); // m to cm
-cubeHeightInput.value = (cubeProperties.cubeHeight * 100).toFixed(0); // m to cm
-cubeDepthInput.value = (cubeProperties.cubeDepth * 100).toFixed(0); // m to cm
-cubeThicknessInput.value = (cubeProperties.thickness * 100).toFixed(1); // m to cm
-cubeWidthValueInput.value = cubeWidthInput.value;
-cubeHeightValueInput.value = cubeHeightInput.value;
-cubeDepthValueInput.value = cubeDepthInput.value;
-cubeThicknessValueInput.value = cubeThicknessInput.value;
+cubeWidthValueInput.value = (cubeProperties.cubeWidth * 100).toFixed(0);
+cubeHeightValueInput.value = (cubeProperties.cubeHeight * 100).toFixed(0);
+cubeDepthValueInput.value = (cubeProperties.cubeDepth * 100).toFixed(0);
+cubeThicknessValueInput.value = (cubeProperties.thickness * 100).toFixed(1);
 
 frontPanelVisibleCheckbox.checked = cubeProperties.frontPanelVisible;
 backPanelVisibleCheckbox.checked = cubeProperties.backPanelVisible;
 shelvesVisibleCheckbox.checked = cubeProperties.showHorizontalPanels;
 
-numCubesXInput.value = numCubes.numCubesX;
-numCubesYInput.value = numCubes.numCubesY;
-numCubesZInput.value = numCubes.numCubesZ;
-numCubesXValueInput.value = numCubesXInput.value;
-numCubesYValueInput.value = numCubesYInput.value;
-numCubesZValueInput.value = numCubesZInput.value;
+numCubesXValueInput.value = numCubes.numCubesX;
+numCubesYValueInput.value = numCubes.numCubesY;
+numCubesZValueInput.value = numCubes.numCubesZ;
 
 // Listen to window resize to adjust Control Panel state if needed
 window.addEventListener('resize', initializeControlPanelState);
