@@ -723,15 +723,18 @@ function addMobileInteractionDelay() {
         e.stopPropagation(); // Stop event from reaching the control
 
         touchMoved = false;
+        overlay.classList.add('active'); // Add active class to overlay
+
         if (e.touches.length === 1) {
           initialTouchX = e.touches[0].clientX;
           initialTouchY = e.touches[0].clientY;
 
           // Start the 0.5-second timer
           touchTimer = setTimeout(() => {
-            // After 0.5 seconds, remove the overlay to allow interaction
+            // After INTERACTION_DELAY milliseconds, remove the overlay to allow interaction
+            overlay.classList.remove('active'); // Remove the active class from overlay
             parent.removeChild(overlay);
-          }, 500); // 500 milliseconds delay
+          }, INTERACTION_DELAY);
         }
       },
       { passive: false } // Set to non-passive to allow preventDefault
@@ -752,6 +755,7 @@ function addMobileInteractionDelay() {
         if (deltaX > 10 || deltaY > 10) {
           touchMoved = true;
           clearTimeout(touchTimer);
+          overlay.classList.remove('active'); // Remove the active class when scrolling
           // Allow scrolling by keeping the overlay
         }
       },
