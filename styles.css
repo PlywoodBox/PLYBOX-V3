@@ -449,3 +449,14 @@ canvas {
 canvas:active {
   cursor: grabbing;
 }
+
+/* For the control panel inputs */
+#control-panel input[type="range"],
+#control-panel input[type="checkbox"] {
+  touch-action: manipulation;
+}
+
+/* For the renderer canvas */
+#renderer-container canvas {
+  touch-action: none;
+}
