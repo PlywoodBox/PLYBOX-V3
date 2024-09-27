@@ -24,6 +24,8 @@ body {
   overflow-y: auto;
   transition: transform 0.3s ease;
   z-index: 1000;
+  /* Added touch-action to allow scrolling */
+  touch-action: pan-y;
 }
 
 /* Mobile View: Control Panel at the Bottom */
@@ -35,7 +37,6 @@ body {
     max-height: 30vh; /* 30% of viewport height */
     transform: translateY(100%); /* Start hidden at the bottom */
     padding: 10px; /* Added overall padding */
-
   }
 
   #control-panel:not(.collapsed) {
@@ -322,6 +323,8 @@ input[type="range"] {
   width: 100%;
   margin: 10px 0;
   background: transparent;
+  /* Added touch-action to allow proper handling */
+  touch-action: pan-y;
 }
 
 input[type="range"]:focus {
@@ -439,14 +442,10 @@ input[type="range"]::-ms-track {
 
 canvas {
   cursor: grab;
+  /* Added touch-action to handle touch events properly */
+  touch-action: none;
 }
 
 canvas:active {
   cursor: grabbing;
-}
-
-/* Add this to your CSS */
-.control-overlay.active {
-  background-color: rgba(255, 0, 0, 0.1); /* Light red overlay */
-  transition: background-color 0.3s ease;
 }
